@@ -1,0 +1,2189 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>دهکده کارت‌جنگ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#16241f;
+    --bg-deep2:#0e1713;
+    --panel:#f2e8d0;
+    --panel-dark:#e4d6b2;
+    --ink:#2b2118;
+    --ink-soft:#5a4d3a;
+    --gold:#c69a3a;
+    --gold-bright:#e8bf5a;
+    --crimson:#8c3232;
+    --crimson-bright:#b04444;
+    --teal:#3c6e5e;
+    --teal-bright:#4f8d78;
+    --lvl1:#f5f1e6;
+    --lvl1-border:#c9bfa0;
+    --lvl2:#bfe3ee;
+    --lvl2-border:#7fb9cc;
+    --lvl3:#7fc27a;
+    --lvl3-border:#4a8f47;
+    --lvl4:#f2b46a;
+    --lvl4-border:#c97a2c;
+    --lvl5:#c8283f;
+    --lvl5-border:#86121f;
+    --lvl6:#c9a6e8;
+    --lvl6-border:#8a5bc4;
+    --diamond:#9b5de5;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Vazirmatn',sans-serif;
+    background:
+      radial-gradient(circle at 20% 10%, #23392f 0%, transparent 45%),
+      radial-gradient(circle at 85% 80%, #1c332a 0%, transparent 50%),
+      linear-gradient(160deg, var(--bg-deep) 0%, var(--bg-deep2) 100%);
+    min-height:100vh;
+    color:var(--ink);
+    padding:18px 14px 60px;
+    -webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;
+    -webkit-touch-callout:none;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .wrap{max-width:520px;margin:0 auto;position:relative;z-index:1;}
+  /* hellish atmosphere on the war map: gets redder after every season */
+  body::before{
+    content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0;transition:opacity 1.2s ease;
+    background:radial-gradient(ellipse at 50% 15%, rgba(190,40,40,.55) 0%, rgba(100,12,20,.78) 55%, rgba(25,0,6,.94) 100%);
+  }
+  body.war-s1::before{opacity:.30;}
+  body.war-s2::before{opacity:.58;}
+  body.war-s3::before{opacity:.82;animation:dread 5s ease-in-out infinite;}
+  @keyframes dread{0%,100%{opacity:.78;}50%{opacity:.9;}}
+  .ember{
+    position:absolute;width:4px;height:4px;border-radius:50%;background:#ff8a3d;z-index:1;pointer-events:none;opacity:0;
+    box-shadow:0 0 7px 2px rgba(255,90,30,.7);animation:emberRise 6s linear infinite;
+  }
+  .ember.s2{background:#ff5a2a;width:5px;height:5px;}
+  .ember.s3{background:#ff3b1f;width:6px;height:6px;box-shadow:0 0 9px 3px rgba(255,40,20,.75);}
+  @keyframes emberRise{
+    0%{transform:translateY(0) scale(1);opacity:0;}
+    15%{opacity:.9;}
+    100%{transform:translateY(-80px) scale(.3);opacity:0;}
+  }
+
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    background:linear-gradient(180deg,#2a4136,#1c2f27);
+    border:1px solid #3d5a4c;
+    border-radius:14px;
+    padding:10px 16px;
+    margin-bottom:16px;
+    box-shadow:0 4px 14px rgba(0,0,0,.35);
+    position:sticky;top:8px;z-index:35;
+  }
+  .coin-badge{
+    display:flex;align-items:center;gap:8px;
+    color:var(--gold-bright);
+    font-weight:700;font-size:17px;
+  }
+  .diamond-icon{
+    font-size:18px;line-height:1;
+    filter:drop-shadow(0 0 3px rgba(155,93,229,.6));
+  }
+  .coin-dot{
+    width:22px;height:22px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, var(--gold-bright), var(--gold) 60%, #8a6a1f 100%);
+    box-shadow:inset 0 0 3px rgba(0,0,0,.4);
+  }
+  .title-line{color:#dcd0ae;font-size:13px;letter-spacing:.5px;}
+  .back-btn{
+    background:none;border:1px solid #4c6a5b;color:#cfe3d8;
+    border-radius:10px;padding:7px 14px;font-family:inherit;font-size:14px;
+    cursor:pointer;
+  }
+  .back-btn:active{transform:scale(.96);}
+
+  h1.game-title{
+    text-align:center;color:#e9dcb4;font-size:22px;font-weight:800;
+    margin:4px 0 20px;letter-spacing:.5px;
+    text-shadow:0 2px 6px rgba(0,0,0,.4);
+  }
+
+  /* Village map */
+  .village-grid{
+    display:grid;grid-template-columns:1fr 1fr;gap:14px;
+  }
+  .building{
+    position:relative;
+    background:linear-gradient(180deg,var(--panel),var(--panel-dark));
+    border:2px solid #8a7857;
+    border-radius:16px;
+    padding:18px 12px 14px;
+    text-align:center;
+    cursor:pointer;
+    box-shadow:0 6px 0 #6b5c3e, 0 8px 16px rgba(0,0,0,.35);
+    transition:transform .12s ease;
+  }
+  .building:active{transform:translateY(4px);box-shadow:0 2px 0 #6b5c3e,0 4px 10px rgba(0,0,0,.3);}
+  .building .icon{font-size:40px;display:block;margin-bottom:8px;}
+  .building .name{font-weight:700;font-size:15px;color:var(--ink);}
+  .building .sub{font-size:11px;color:var(--ink-soft);margin-top:3px;}
+  .building.wide{grid-column:1/3;}
+  .badge-corner{
+    position:absolute;top:-8px;left:-8px;
+    background:var(--crimson);color:#fff;font-size:11px;font-weight:700;
+    padding:3px 8px;border-radius:999px;border:2px solid #fff3;
+  }
+
+  .panel{
+    background:linear-gradient(180deg,var(--panel),var(--panel-dark));
+    border:2px solid #8a7857;border-radius:16px;
+    padding:16px;margin-bottom:14px;
+    box-shadow:0 6px 16px rgba(0,0,0,.3);
+  }
+  .panel h2{margin:0 0 10px;font-size:17px;color:var(--ink);}
+  .panel p.desc{font-size:13px;color:var(--ink-soft);margin:0 0 12px;line-height:1.7;}
+
+  /* Cards grid (home) */
+  .cards-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  .cardbox{
+    border-radius:12px;padding:10px 4px 8px;text-align:center;cursor:pointer;
+    border:2px solid;position:relative;
+    transition:transform .1s;
+    font-weight:700;
+  }
+  .cardbox:active{transform:scale(.95);}
+  .cardbox.lvl1{background:var(--lvl1);border-color:var(--lvl1-border);}
+  .cardbox.lvl2{background:var(--lvl2);border-color:var(--lvl2-border);}
+  .cardbox.lvl3{background:var(--lvl3);border-color:var(--lvl3-border);color:#173816;}
+  .cardbox.lvl4{background:var(--lvl4);border-color:var(--lvl4-border);color:#4a2c0a;}
+  .cardbox.lvl5{background:var(--lvl5);border-color:var(--lvl5-border);color:#fff5f0;}
+  .cardbox.lvl6{background:var(--lvl6);border-color:var(--lvl6-border);color:#33184d;}
+  .cardbox .lvl-tag{font-size:10px;font-weight:600;opacity:.75;}
+  .cardbox .power{font-size:22px;margin:4px 0 2px;}
+  .cardbox .power-label{font-size:10px;font-weight:500;opacity:.7;}
+  .cardbox .elem{font-size:11px;font-weight:600;margin-top:2px;min-height:14px;}
+  .cardbox.selected{outline:3px solid var(--crimson);}
+  .empty-slot{
+    border:2px dashed #a99a76;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    color:#9c8c68;font-size:12px;min-height:74px;
+  }
+  .cap-note{font-size:12px;color:var(--ink-soft);margin-top:10px;text-align:center;}
+
+  /* Market */
+  .market-item{
+    display:flex;align-items:center;gap:12px;
+    background:#fffaf0;border:2px solid #cbb987;border-radius:12px;
+    padding:10px 12px;margin-bottom:10px;
+  }
+  .market-item .swatch{
+    width:46px;height:60px;border-radius:8px;flex:none;border:2px solid;
+  }
+  .swatch.lvl1{background:var(--lvl1);border-color:var(--lvl1-border);}
+  .swatch.lvl2{background:var(--lvl2);border-color:var(--lvl2-border);}
+  .swatch.lvl3{background:var(--lvl3);border-color:var(--lvl3-border);}
+  .swatch.lvl4{background:var(--lvl4);border-color:var(--lvl4-border);}
+  .swatch.lvl5{background:var(--lvl5);border-color:var(--lvl5-border);}
+  .swatch.lvl6{background:var(--lvl6);border-color:var(--lvl6-border);}
+  .market-info{flex:1;text-align:right;}
+  .market-info .mname{font-weight:700;font-size:14px;}
+  .market-info .mrange{font-size:12px;color:var(--ink-soft);}
+  .buy-btn{
+    background:var(--teal);color:#fff;border:none;border-radius:10px;
+    padding:8px 14px;font-family:inherit;font-weight:700;font-size:13px;cursor:pointer;
+    white-space:nowrap;
+  }
+  .buy-btn:disabled{background:#9c9c9c;}
+  .buy-btn:active:not(:disabled){transform:scale(.95);}
+
+  /* War map (winding dotted path) */
+  .stage-map{position:relative;margin:10px -16px 0;overflow:hidden;}
+  .stage-map svg{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;}
+  .map-node{
+    position:absolute;width:44px;height:44px;border-radius:50%;transform:translate(-50%,-50%);
+    display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;
+    cursor:pointer;border:3px solid;z-index:2;box-shadow:0 3px 0 rgba(0,0,0,.18);
+  }
+  .map-node.locked{background:#c9c0a6;border-color:#a99a76;color:#8a7c5e;cursor:default;}
+  .map-node.available{background:linear-gradient(180deg,#fff6de,#f0dca0);border-color:var(--gold);color:var(--ink);}
+  .map-node.done{background:linear-gradient(180deg,#d3ecd0,#a9d8a3);border-color:var(--teal);color:#1d4a2f;}
+  .map-node.current{animation:nodePulse 1.6s ease-in-out infinite;}
+  @keyframes nodePulse{
+    0%,100%{box-shadow:0 0 0 0 rgba(198,154,58,.75),0 3px 0 rgba(0,0,0,.18);}
+    50%{box-shadow:0 0 0 11px rgba(198,154,58,0),0 3px 0 rgba(0,0,0,.18);}
+  }
+  .map-letter{
+    position:absolute;width:60px;height:60px;border-radius:14px;transform:translate(-50%,-50%);
+    display:flex;align-items:center;justify-content:center;font-size:32px;cursor:pointer;z-index:2;
+    background:linear-gradient(180deg,#fff6de,#f0dca0);border:3px solid var(--gold);
+    animation:nodePulse 1.6s ease-in-out infinite;
+  }
+  .cloud-label{
+    position:absolute;left:0;right:0;text-align:center;padding:0 34px;z-index:3;cursor:pointer;
+    font-size:12px;font-weight:700;color:#5f7387;line-height:1.8;
+  }
+  .fab{
+    position:fixed;left:14px;bottom:18px;z-index:40;border:none;border-radius:999px;
+    padding:11px 16px;font-family:inherit;font-weight:800;font-size:13px;cursor:pointer;
+    background:linear-gradient(180deg,var(--crimson-bright),var(--crimson));color:#fff;
+    box-shadow:0 4px 0 #5a1f1f,0 8px 16px rgba(0,0,0,.4);
+  }
+  .fab:active{transform:translateY(2px);box-shadow:0 2px 0 #5a1f1f;}
+  .map-node .node-gem{position:absolute;top:-10px;right:-8px;font-size:14px;}
+  .map-node .mini-lock{position:absolute;top:-8px;left:-6px;font-size:11px;}
+
+  /* Collection */
+  .collection-layout{display:flex;gap:10px;align-items:flex-start;}
+  .collection-main{flex:1;min-width:0;}
+  .collection-levels{width:80px;flex:none;display:flex;flex-direction:column;gap:8px;}
+  .coll-lvl-btn{
+    border:2px solid;border-radius:12px;padding:9px 4px;font-family:inherit;font-weight:700;font-size:12px;
+    cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;
+  }
+  .coll-lvl-btn.active{outline:3px solid var(--crimson);outline-offset:1px;}
+  .coll-lvl-btn .cl-count{font-size:11px;font-weight:600;opacity:.85;}
+  .coll-title{font-weight:700;font-size:14px;margin-bottom:10px;line-height:1.7;}
+  .coll-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .coll-tile{border:2px solid;border-radius:12px;padding:12px 4px;text-align:center;font-weight:700;}
+  .coll-tile .ct-icon{font-size:26px;}
+  .coll-tile .ct-name{font-size:12px;margin-top:2px;}
+  .coll-tile.missing{background:#d9d0b6;border-color:#a99a76;border-style:dashed;color:#8a7c5e;}
+  .coll-tile.missing .ct-icon{opacity:.35;filter:grayscale(1);}
+
+  .stage-grid{
+    display:grid;grid-template-columns:repeat(5,1fr);gap:8px;
+    margin-bottom:6px;
+  }
+  .stage-node{
+    aspect-ratio:1;border-radius:10px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    font-size:15px;font-weight:700;cursor:pointer;border:2px solid;
+    position:relative;
+  }
+  .stage-node.locked{background:#c9c0a6;border-color:#a99a76;color:#8a7c5e;cursor:default;}
+  .stage-node.available{background:linear-gradient(180deg,#fff6de,#f0dca0);border-color:var(--gold);color:var(--ink);}
+  .stage-node.done{background:linear-gradient(180deg,#d3ecd0,#a9d8a3);border-color:var(--teal);color:#1d4a2f;}
+  .stage-node .mini-lock{font-size:12px;position:absolute;top:3px;left:4px;}
+  .range-legend{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px;font-size:11px;color:var(--ink-soft);}
+  .range-legend span{background:#fffaf0;border:1px solid #cbb987;border-radius:8px;padding:3px 7px;}
+
+  /* Mine */
+  .mine-slots{display:flex;gap:12px;justify-content:center;margin-bottom:14px;}
+  .mine-slot{
+    width:90px;min-height:100px;border-radius:12px;
+    border:2px dashed #a99a76;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;cursor:pointer;text-align:center;
+    padding:6px;font-size:12px;color:#8a7c5e;
+  }
+  .mine-slot.filled{border-style:solid;}
+  .mine-stats{text-align:center;margin-bottom:10px;}
+  .mine-stats .big{font-size:26px;font-weight:800;color:var(--gold);}
+  .collect-btn{
+    display:block;width:100%;background:linear-gradient(180deg,var(--gold-bright),var(--gold));
+    border:none;border-radius:12px;padding:12px;font-family:inherit;font-weight:800;
+    font-size:15px;color:#3a2c0a;cursor:pointer;box-shadow:0 4px 0 #8a6a1f;
+  }
+  .collect-btn:active{transform:translateY(2px);box-shadow:0 2px 0 #8a6a1f;}
+  .collect-btn:disabled{background:#c9c0a6;color:#8a7c5e;box-shadow:none;cursor:default;}
+
+  /* Wheel */
+  .wheel-outer{position:relative;width:230px;height:230px;margin:6px auto 18px;}
+  .wheel-pointer{position:absolute;top:-8px;left:50%;transform:translateX(-50%);font-size:26px;z-index:5;filter:drop-shadow(0 2px 2px rgba(0,0,0,.4));}
+  .wheel-disc{
+    width:100%;height:100%;border-radius:50%;border:6px solid var(--gold);position:relative;
+    box-shadow:0 8px 20px rgba(0,0,0,.4);
+    background:conic-gradient(from 0deg,
+      #f6d98a 0deg 45deg, #bfe3ee 45deg 90deg, #f6d98a 90deg 135deg, #d8c2ef 135deg 180deg,
+      #f6d98a 180deg 225deg, #d8c2ef 225deg 270deg, #f6d98a 270deg 315deg, #bfe3ee 315deg 360deg);
+  }
+  .wheel-label{
+    position:absolute;top:50%;left:50%;
+    width:56px;margin-left:-28px;height:34px;margin-top:-17px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;line-height:1.15;color:#2b2118;font-weight:800;
+    pointer-events:none;
+  }
+  .wheel-label .num{font-size:15px;}
+  .wheel-label .unit{font-size:9px;font-weight:600;opacity:.8;}
+  .wheel-hub{position:absolute;top:50%;left:50%;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;background:var(--gold-bright);border:3px solid #8a6a1f;}
+
+  /* Modal */
+  .overlay{
+    position:fixed;inset:0;background:rgba(10,15,12,.6);
+    display:flex;align-items:center;justify-content:center;z-index:50;
+    padding:20px;
+  }
+  .modal{
+    background:linear-gradient(180deg,var(--panel),var(--panel-dark));
+    border:2px solid #8a7857;border-radius:16px;padding:18px;
+    max-width:360px;width:100%;box-shadow:0 12px 30px rgba(0,0,0,.5);
+  }
+  .modal h3{margin:0 0 10px;font-size:16px;}
+  .modal p{font-size:13px;line-height:1.8;color:var(--ink-soft);margin:0 0 14px;}
+  .modal-actions{display:flex;gap:8px;}
+  .modal-actions button{
+    flex:1;border:none;border-radius:10px;padding:10px;font-family:inherit;
+    font-weight:700;font-size:13px;cursor:pointer;
+  }
+  .btn-primary{background:var(--teal);color:#fff;}
+  .btn-danger{background:var(--crimson);color:#fff;}
+  .btn-ghost{background:#e6dcc0;color:var(--ink);}
+
+  .toast{
+    position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+    background:#1c2f27;color:#e9dcb4;padding:10px 18px;border-radius:10px;
+    font-size:13px;z-index:60;box-shadow:0 6px 16px rgba(0,0,0,.4);
+    max-width:90%;text-align:center;
+  }
+  .hidden{display:none !important;}
+  .screen{display:none;}
+  .screen.active{display:block;}
+</style>
+</head>
+<body oncontextmenu="return false">
+<div class="wrap">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="coin-badge"><div class="coin-dot"></div><span id="coinCount">0</span></div>
+      <div class="coin-badge" style="color:#d9b8ff;"><span class="diamond-icon">💎</span><span id="diamondCount">0</span></div>
+      <button class="back-btn" id="musicBtn" onclick="toggleMusic()" title="موزیک">🔈</button>
+    </div>
+    <div class="title-line" id="screenLabel">دهکده</div>
+    <button class="back-btn hidden" id="backBtn">بازگشت</button>
+  </div>
+
+  <h1 class="game-title">دهکده کارت‌جنگ ⚔️</h1>
+
+  <!-- VILLAGE -->
+  <div class="screen active" id="screen-village">
+    <div class="village-grid">
+      <div class="building" onclick="openHome()">
+        <span class="icon">🏠</span>
+        <div class="name">خانه‌ی کارت‌ها</div>
+        <div class="sub" id="homeSub">کارت‌هایت اینجاست</div>
+      </div>
+      <div class="building" onclick="openWar()">
+        <span class="icon">⚔️</span>
+        <div class="name">میدان جنگ</div>
+        <div class="sub">با دشمن‌ها بجنگ</div>
+      </div>
+      <div class="building" onclick="openMarket()">
+        <span class="icon">🏪</span>
+        <div class="name">بازار</div>
+        <div class="sub">خرید کارت جدید</div>
+      </div>
+      <div class="building" onclick="openMine()">
+        <span class="icon">⛏️</span>
+        <div class="name">معدن سکه</div>
+        <div class="sub" id="mineSub">کارت‌هایت را کار بگذار</div>
+      </div>
+      <div class="building" onclick="openWheel()">
+        <span class="icon">🎡</span>
+        <div class="name">گردونه شانس</div>
+        <div class="sub" id="wheelSub">هر ۱۲ ساعت یک چرخش</div>
+      </div>
+      <div class="building" onclick="openCollection()">
+        <span class="icon">📖</span>
+        <div class="name">کلکسیون</div>
+        <div class="sub" id="collectionSub">کارت‌هایی که جمع کرده‌ای</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div class="screen" id="screen-home">
+    <div class="panel">
+      <h2>کارت‌های تو</h2>
+      <p class="desc">روی یک کارت بزن تا گزینه‌های ارتقا (با هر کارتی) و جهش (با کارت هم‌نژاد و هم‌سطح) را ببینی. اگر یک ثانیه روی کارتی نگه‌داری، می‌توانی آن را به قیمت دو برابر قدرتش بفروشی.</p>
+      <div class="cards-grid" id="homeCardsGrid"></div>
+      <div class="cap-note" id="capNote"></div>
+    </div>
+  </div>
+
+  <!-- MARKET -->
+  <div class="screen" id="screen-market">
+    <div class="panel">
+      <h2>بازار دهکده</h2>
+      <p class="desc">کارت بخر و به خانه‌ات اضافه‌اش کن. قدرت و نژاد (آتش، برق، آب، سنگ یا باد) هر کارت به صورت شانسی تعیین می‌شود.</p>
+      <div class="market-item">
+        <div class="swatch lvl1"></div>
+        <div class="market-info">
+          <div class="mname">کارت لول ۱ (سفید)</div>
+          <div class="mrange">قدرت بین ۵ تا ۱۵ · قیمت ۷۰ سکه</div>
+        </div>
+        <button class="buy-btn" onclick="buyCard(1)">خرید</button>
+      </div>
+      <div class="market-item">
+        <div class="swatch lvl2"></div>
+        <div class="market-info">
+          <div class="mname">کارت لول ۲ (آبی کمرنگ)</div>
+          <div class="mrange">قدرت بین ۱۲ تا ۲۰ · قیمت ۱۵۰ سکه</div>
+        </div>
+        <button class="buy-btn" onclick="buyCard(2)">خرید</button>
+      </div>
+      <div class="market-item">
+        <div class="swatch lvl3"></div>
+        <div class="market-info">
+          <div class="mname">کارت لول ۳ (سبز)</div>
+          <div class="mrange">قدرت بین ۲۳ تا ۳۵ · قیمت ۳۴۰ سکه</div>
+        </div>
+        <button class="buy-btn" onclick="buyCard(3)">خرید</button>
+      </div>
+      <div class="market-item">
+        <div class="swatch lvl4"></div>
+        <div class="market-info">
+          <div class="mname">کارت لول ۴ (نارنجی)</div>
+          <div class="mrange">قدرت بین ۳۲ تا ۵۰ · قیمت ۶۰۰ سکه</div>
+        </div>
+        <button class="buy-btn" onclick="buyCard(4)">خرید</button>
+      </div>
+      <div class="market-item hidden" id="lvl5Item">
+        <div class="swatch lvl5"></div>
+        <div class="market-info">
+          <div class="mname">کارت لول ۵ (قرمز)</div>
+          <div class="mrange" id="lvl5Range"></div>
+        </div>
+        <button class="buy-btn" id="lvl5Btn" onclick="buyCard(5)">خرید</button>
+      </div>
+      <div class="market-item">
+        <div class="swatch lvl6"></div>
+        <div class="market-info">
+          <div class="mname">کارت هیولا (بنفش)</div>
+          <div class="mrange">قدرت بین ۵۰ تا ۶۰ · بدون نژاد · قیمت ۵ 💎</div>
+        </div>
+        <button class="buy-btn" onclick="buyMonsterCard()">خرید</button>
+      </div>
+    </div>
+    <div class="panel hidden" id="exchangePanel">
+      <h2>تبادل سکه به الماس</h2>
+      <div id="exchangeContainer"></div>
+    </div>
+    <div class="panel">
+      <h2>ارتقاهای دهکده</h2>
+      <p class="desc">گنجایش حمله و معدن را افزایش بده.</p>
+      <div id="upgradesContainer"></div>
+    </div>
+  </div>
+
+  <!-- WAR -->
+  <div class="screen" id="screen-war">
+    <div class="panel">
+      <h2>میدان جنگ</h2>
+      <p class="desc">هر مرحله را که تمام می‌کنی، مرحله‌ی بعد باز می‌شود. مراحل رُند (۱۰، ۲۰، ۳۰...) علاوه بر سکه، الماس 💎 هم می‌دهند (بعضی از آن‌ها دو الماس!). مسیر را قدم‌به‌قدم بالا برو؛ جلوتر را ابرها پوشانده‌اند.</p>
+      <div class="range-legend" id="rangeLegend"></div>
+      <div class="stage-map" id="stageMap"></div>
+    </div>
+    <div class="panel" id="freeWarEntryPanel">
+      <h2>نبرد آزاد ⚔️🔁</h2>
+      <p class="desc" id="freeWarEntryDesc"></p>
+      <button class="collect-btn" id="freeWarEntryBtn" onclick="openFreeWar()">ورود به نبرد آزاد</button>
+    </div>
+  </div>
+
+  <!-- FREE WAR -->
+  <div class="screen" id="screen-freewar">
+    <div class="panel">
+      <h2>نبرد آزاد ⚔️🔁</h2>
+      <p class="desc">هر مرحله را می‌توانی تا ۱۰۰ بار ببری؛ هر برد سکه می‌دهد. بعد از ۱۰۰ برد، آن مرحله دیگر سکه نمی‌دهد. بعد از هر حمله باید دوباره روی مرحله بزنی و کارت‌هایت را از نو انتخاب کنی. با تمام کردن ۱۰۰ برد هر مرحله، ۱ 💎 جایزه می‌گیری.</p>
+      <div id="freeWarList"></div>
+    </div>
+  </div>
+
+  <!-- COLLECTION -->
+  <div class="screen" id="screen-collection">
+    <div class="panel">
+      <h2>کلکسیون 📖</h2>
+      <p class="desc">نژادهایی که از هر لول تا حالا به دست آورده‌ای. یک لول را انتخاب کن و ببین کدام نژادها را کامل کرده‌ای.</p>
+      <div class="collection-layout">
+        <div class="collection-main" id="collectionMain"></div>
+        <div class="collection-levels" id="collectionLevels"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MINE -->
+  <div class="screen" id="screen-mine">
+    <div class="panel">
+      <h2>معدن سکه</h2>
+      <p class="desc">کارت‌هایت را در معدن فعال کن (گنجایش فعلی در بازار قابل ارتقاست). هر نیم ساعت، به‌اندازه‌ی مجموع قدرتشان سکه تولید می‌شود — تا سقف ۱۰۰ سکه؛ برای ادامه‌ی تولید باید سکه‌ها را جمع کنی. کارتی که در معدن است دیگر برای جنگ در دسترس نیست.</p>
+      <div class="mine-slots" id="mineSlots"></div>
+      <div class="mine-stats">
+        <div class="big" id="minePending">۰</div>
+        <div style="font-size:12px;color:var(--ink-soft);">سکه‌ی آماده‌ی برداشت (سقف: <span id="mineCapLabel">۱۰۰</span>)</div>
+      </div>
+      <button class="collect-btn" id="collectBtn" onclick="collectMine()">برداشت سکه‌ها</button>
+    </div>
+  </div>
+
+  <!-- WHEEL -->
+  <div class="screen" id="screen-wheel">
+    <div class="panel">
+      <h2>گردونه شانس 🎡</h2>
+      <p class="desc">هر ۱۲ ساعت یک‌بار می‌توانی گردونه را بچرخانی و یکی از این جایزه‌ها نصیبت شود.</p>
+      <div class="wheel-outer">
+        <div class="wheel-pointer">🔻</div>
+        <div class="wheel-disc" id="wheelDisc">
+          <div class="wheel-label" style="transform:rotate(22.5deg) translateY(-72px) rotate(-90deg)"><span class="num">۵۰</span><span class="unit">سکه</span></div>
+          <div class="wheel-label" style="transform:rotate(67.5deg) translateY(-72px) rotate(-90deg)"><span class="num">۱۰۰</span><span class="unit">سکه</span></div>
+          <div class="wheel-label" style="transform:rotate(112.5deg) translateY(-72px) rotate(-90deg)"><span class="num">۱۵۰</span><span class="unit">سکه</span></div>
+          <div class="wheel-label" style="transform:rotate(157.5deg) translateY(-72px) rotate(-90deg)"><span class="num">💎</span><span class="unit">۱</span></div>
+          <div class="wheel-label" style="transform:rotate(202.5deg) translateY(-72px) rotate(-90deg)"><span class="num">۲۰۰</span><span class="unit">سکه</span></div>
+          <div class="wheel-label" style="transform:rotate(247.5deg) translateY(-72px) rotate(-90deg)"><span class="num">💎</span><span class="unit">۲</span></div>
+          <div class="wheel-label" style="transform:rotate(292.5deg) translateY(-72px) rotate(-90deg)"><span class="num">۲۵۰</span><span class="unit">سکه</span></div>
+          <div class="wheel-label" style="transform:rotate(337.5deg) translateY(-72px) rotate(-90deg)"><span class="num">خالی</span></div>
+        </div>
+        <div class="wheel-hub"></div>
+      </div>
+      <div style="text-align:center;margin-bottom:12px;font-size:13px;color:var(--ink-soft);" id="wheelCountdown"></div>
+      <button class="collect-btn" id="spinBtn" onclick="spinWheel()">چرخاندن گردونه</button>
+    </div>
+  </div>
+</div>
+
+<button class="fab hidden" id="freeWarFab" onclick="openFreeWar()">⚔️🔁 نبرد آزاد</button>
+<div id="modalRoot"></div>
+<div id="toastRoot"></div>
+
+<script>
+/* ---------------- Game State ---------------- */
+const STORAGE_KEY = 'tourcard_state_v1';
+let state = null;
+let selectedForUpgrade = null; // card id
+let mineSelectTarget = null; // slot index being chosen
+
+const STAGE_POWERS = [5,8,16,22,26,30,35,40,46,52,56,60,67,75,90,100,115,125,135,149,161,175,178,200,213,233,240,250,266,280,300,312,333,348,362,377,400,419,431,450,461,472,485,498,512,525,541,554,572,590,610,626,643,660,680,699,714,735,754,777,800,820,840,861,880,900,919,935,958,980,1001,1022,1045,1063,1085];
+const MAX_STAGE_IMPLEMENTED = STAGE_POWERS.length; // 40
+const TOTAL_STAGES = 75;
+
+const LEVEL_CAPS = {1:20, 2:30, 3:50, 4:70, 5:150, 6:100};
+const FUSION_CAP = {1:20, 2:30, 3:50, 4:100}; // max power of the fused card, by source level
+const LEVEL5_UNLOCK_STAGE = 52;
+const LEVEL_PRICE = {1:70, 2:150, 3:340, 4:600, 5:1100};
+const LEVEL_RANGE = {1:[5,15], 2:[12,20], 3:[23,35], 4:[32,50], 5:[80,100], 6:[50,60]};
+const LEVEL_NAMES = {1:'لول ۱', 2:'لول ۲', 3:'لول ۳', 4:'لول ۴', 5:'لول ۵', 6:'هیولا'};
+const MONSTER_LEVEL = 6;
+const ELEMENTS = {
+  fire:{icon:'🔥',name:'آتش'},
+  lightning:{icon:'⚡',name:'برق'},
+  water:{icon:'💧',name:'آب'},
+  stone:{icon:'🪨',name:'سنگ'},
+  wind:{icon:'💨',name:'باد'}
+};
+const ELEMENT_KEYS = Object.keys(ELEMENTS);
+const WHEEL_UNLOCK_STAGE = 12;
+const EXCHANGE_UNLOCK_STAGE = 40;
+const EXCHANGE_RATE = 300;
+const EXCHANGE_PHASE_MS = 60*60*1000;
+const FREE_BATTLE_UNLOCK_STAGE = 37;
+const FREE_BATTLE_USES_TOTAL = 100;
+const FREE_BATTLE_STAGES = [
+  {power:150, reward:1},
+  {power:400, reward:2},
+  {power:500, reward:3},
+  {power:600, reward:5}
+];
+const HOME_CAPACITY_UNLOCK_STAGE = 30;
+const HOME_CAPACITY_MAX = 12;
+const HOME_CAPACITY_PRICE = {10:280, 11:510};
+const MONSTER_PRICE_DIAMONDS = 5;
+
+const BATTLE_LIMIT_MAX = 8;
+const BATTLE_UPGRADE_PRICE = {4:90, 5:200, 6:430, 7:660};
+const MINE_CAPACITY_MAX = 4;
+const MINE_UPGRADE_PRICE = {2:{coins:180}, 3:{coins:500, diamonds:2}};
+const MINE_CAP_COINS_DEFAULT = 100;
+const MINE_COINCAP_STEPS = {100:{next:180, coins:210}, 180:{next:300, coins:490, diamonds:1}, 300:{next:600, coins:900, diamonds:2}};
+const WHEEL_COOLDOWN_MS = 12*60*60*1000;
+const WHEEL_SEGMENTS = [
+  {type:'coins', amount:50},
+  {type:'coins', amount:100},
+  {type:'coins', amount:150},
+  {type:'diamonds', amount:1},
+  {type:'coins', amount:200},
+  {type:'diamonds', amount:2},
+  {type:'coins', amount:250},
+  {type:'empty'}
+];
+
+function defaultState(){
+  return {
+    coins: 0,
+    diamonds: 0,
+    cards: [], // {id, level, power}
+    nextCardId: 1,
+    stageUnlocked: 1, // highest unlocked stage number
+    stageCompleted: [], // array of completed stage numbers
+    mine: { slots: [null, null], lastCollect: Date.now() },
+    mineCoinCap: MINE_CAP_COINS_DEFAULT,
+    gaveStarter: false,
+    battleCardLimit: 4,
+    mineCapacity: 2,
+    wheelLastSpin: Date.now(),
+    exchangeAnchor: null,
+    freeBattleUses: FREE_BATTLE_STAGES.map(()=>FREE_BATTLE_USES_TOTAL),
+    homeCapacity: 10,
+    schemaV: 2,
+    collection: {},
+    freeBattleClaimed: FREE_BATTLE_STAGES.map(()=>false)
+  };
+}
+
+function rand(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+
+const MAX_COINS = 999999;
+function addCoins(amount){
+  state.coins = Math.min(MAX_COINS, state.coins + amount);
+}
+
+function canAfford(cost){
+  return state.coins >= (cost.coins||0) && state.diamonds >= (cost.diamonds||0);
+}
+function payCost(cost){
+  state.coins -= (cost.coins||0);
+  state.diamonds -= (cost.diamonds||0);
+}
+function formatCost(cost){
+  const parts = [];
+  if(cost.coins) parts.push(`${toFa(cost.coins)} سکه`);
+  if(cost.diamonds) parts.push(`${toFa(cost.diamonds)} 💎`);
+  return parts.join(' و ');
+}
+
+function migrateState(){
+  // fill in fields that may be missing from an older save
+  if(typeof state.battleCardLimit !== 'number') state.battleCardLimit = 4;
+  if(typeof state.mineCapacity !== 'number') state.mineCapacity = 2;
+  if(!state.mine) state.mine = { slots: [null,null], lastCollect: Date.now() };
+  if(!Array.isArray(state.mine.slots)) state.mine.slots = [null,null];
+  while(state.mine.slots.length < state.mineCapacity) state.mine.slots.push(null);
+  if(typeof state.mine.lastCollect !== 'number') state.mine.lastCollect = Date.now();
+  if(typeof state.coins !== 'number') state.coins = 0;
+  if(typeof state.diamonds !== 'number') state.diamonds = 0;
+  if(typeof state.mineCoinCap !== 'number') state.mineCoinCap = MINE_CAP_COINS_DEFAULT;
+  if(typeof state.wheelLastSpin !== 'number') state.wheelLastSpin = Date.now();
+  if(!Array.isArray(state.cards)) state.cards = [];
+  if(!Array.isArray(state.stageCompleted)) state.stageCompleted = [];
+  // old saves: level 5 used to be the monster card, which is now level 6
+  if((state.schemaV||1) < 2){
+    state.cards.forEach(c=>{ if(c.level===5){ c.level = 6; delete c.element; } });
+    state.schemaV = 2;
+  }
+  // every non-monster card needs an element
+  state.cards.forEach(c=>{
+    if(c.level!==MONSTER_LEVEL && !ELEMENTS[c.element]) c.element = ELEMENT_KEYS[rand(0,ELEMENT_KEYS.length-1)];
+    if(c.level===MONSTER_LEVEL) delete c.element;
+  });
+  // newly added stages: make sure progress isn't stuck at the old last stage
+  const maxDone = state.stageCompleted.length ? Math.max(...state.stageCompleted) : 0;
+  if(maxDone >= state.stageUnlocked && maxDone < MAX_STAGE_IMPLEMENTED) state.stageUnlocked = maxDone+1;
+  if(state.stageCompleted.includes(EXCHANGE_UNLOCK_STAGE) && typeof state.exchangeAnchor !== 'number') state.exchangeAnchor = Date.now();
+  if(!Array.isArray(state.freeBattleUses) || state.freeBattleUses.length!==FREE_BATTLE_STAGES.length){
+    state.freeBattleUses = FREE_BATTLE_STAGES.map(()=>FREE_BATTLE_USES_TOTAL);
+  }
+  if(typeof state.homeCapacity !== 'number') state.homeCapacity = 10;
+  if(!state.collection || typeof state.collection !== 'object') state.collection = {};
+  state.cards.forEach(c=>recordCollected(c));
+  if(!Array.isArray(state.freeBattleClaimed) || state.freeBattleClaimed.length!==FREE_BATTLE_STAGES.length){
+    state.freeBattleClaimed = FREE_BATTLE_STAGES.map(()=>false);
+  }
+  state.freeBattleUses.forEach((u,i)=>{
+    if(u<=0 && !state.freeBattleClaimed[i]){ state.freeBattleClaimed[i] = true; state.diamonds += 1; }
+  });
+}
+
+const HAS_CLOUD_STORAGE = (typeof window.storage !== 'undefined' && window.storage && typeof window.storage.get === 'function');
+
+function loadFromLocalStorage(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  }catch(e){
+    console.error('localStorage load failed', e);
+    return null;
+  }
+}
+
+function saveToLocalStorage(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }catch(e){ console.error('localStorage save failed', e); }
+}
+
+async function loadState(){
+  // Check localStorage first -- this is what actually persists when the
+  // file is opened directly in a browser (double-clicked, saved locally, etc.)
+  const localData = loadFromLocalStorage();
+  if(localData){
+    state = localData;
+  }
+
+  if(!state && HAS_CLOUD_STORAGE){
+    let loaded = false;
+    for(let attempt=0; attempt<2 && !loaded; attempt++){
+      try{
+        const res = await window.storage.get(STORAGE_KEY, false);
+        if(res && res.value){
+          state = JSON.parse(res.value);
+        }
+        loaded = true;
+      }catch(e){
+        console.error('load attempt failed', e);
+        if(attempt===0) await new Promise(r=>setTimeout(r,300));
+      }
+    }
+  }
+
+  if(!state) state = defaultState();
+  migrateState();
+  render();
+  // extra safety autosave loop
+  setInterval(()=>{ if(state) saveState(); }, 20000);
+}
+
+async function saveState(){
+  // localStorage is synchronous and works whether this file is opened
+  // directly in a browser or inside Claude -- save here unconditionally.
+  saveToLocalStorage();
+  if(HAS_CLOUD_STORAGE){
+    try{
+      await window.storage.set(STORAGE_KEY, JSON.stringify(state), false);
+    }catch(e){ console.error('cloud save failed', e); }
+  }
+}
+
+document.addEventListener('visibilitychange', ()=>{ if(document.hidden && state) saveState(); });
+window.addEventListener('pagehide', ()=>{ if(state) saveState(); });
+
+/* ---------------- Navigation ---------------- */
+function showScreen(id, label){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('screenLabel').textContent = label;
+  document.getElementById('backBtn').classList.toggle('hidden', id==='screen-village');
+  if(typeof updateFab==='function') updateFab();
+  if(typeof updateWarAtmosphere==='function') updateWarAtmosphere();
+}
+document.getElementById('backBtn').onclick = ()=>{ showScreen('screen-village','دهکده'); selectedForUpgrade=null; render(); };
+
+function openHome(){
+  if(state.cards.length===0 && !state.gaveStarter){
+    state.cards.push(makeCard(1, 10));
+    state.gaveStarter = true;
+    saveState();
+    toast('یک کارت لول ۱ با قدرت ۱۰ به خانه‌ات اضافه شد!');
+  }
+  showScreen('screen-home','خانه‌ی کارت‌ها');
+  render();
+}
+function openMarket(){ showScreen('screen-market','بازار'); render(); }
+function openWar(){
+  showScreen('screen-war','میدان جنگ'); render();
+  setTimeout(scrollToCurrentStage, 60);
+}
+function openMine(){ showScreen('screen-mine','معدن سکه'); render(); }
+function openWheel(){
+  if(!wheelUnlocked()){ toast(`گردونه‌ی شانس با بردن مرحله‌ی ${toFa(WHEEL_UNLOCK_STAGE)} باز می‌شود.`); return; }
+  showScreen('screen-wheel','گردونه شانس'); renderWheelScreen();
+}
+
+/* ---------------- Toast ---------------- */
+function toast(msg){
+  const root = document.getElementById('toastRoot');
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  root.innerHTML = '';
+  root.appendChild(el);
+  setTimeout(()=>{ el.remove(); }, 2600);
+}
+
+/* ---------------- Modal ---------------- */
+function showModal(html){
+  document.getElementById('modalRoot').innerHTML =
+    `<div class="overlay" id="overlayEl"><div class="modal">${html}</div></div>`;
+}
+function closeModal(){ document.getElementById('modalRoot').innerHTML=''; }
+
+/* ---------------- Market ---------------- */
+function buyCard(level){
+  if(level===5 && !level5Unlocked()){ toast(`کارت لول ۵ با بردن مرحله‌ی ${toFa(LEVEL5_UNLOCK_STAGE)} باز می‌شود.`); return; }
+  if(state.cards.length>=state.homeCapacity){
+    toast('خانه‌ات پر است. یکی را ارتقا/فروش بده یا گنجایش خانه را در بازار زیاد کن.');
+    return;
+  }
+  const price = LEVEL_PRICE[level];
+  if(state.coins < price){
+    toast('سکه‌ی کافی نداری.');
+    return;
+  }
+  const [min,max] = LEVEL_RANGE[level];
+  const power = rand(min,max);
+  state.coins -= price;
+  state.cards.push(makeCard(level, power));
+  saveState();
+  toast(`کارت ${cardLabel(level)} با قدرت ${toFa(power)} خریداری شد.`);
+  render();
+}
+
+function buyMonsterCard(){
+  if(state.cards.length>=state.homeCapacity){
+    toast('خانه‌ات پر است. یکی را ارتقا/فروش بده یا گنجایش خانه را در بازار زیاد کن.');
+    return;
+  }
+  if(state.diamonds < MONSTER_PRICE_DIAMONDS){
+    toast('الماس کافی نداری.');
+    return;
+  }
+  const [min,max] = LEVEL_RANGE[MONSTER_LEVEL];
+  const power = rand(min,max);
+  state.diamonds -= MONSTER_PRICE_DIAMONDS;
+  state.cards.push(makeCard(MONSTER_LEVEL, power));
+  saveState();
+  toast(`کارت هیولا با قدرت ${toFa(power)} خریداری شد.`);
+  render();
+}
+
+/* ---------------- Home / Upgrade ---------------- */
+function toFa(n){
+  const d = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
+  return String(n).split('').map(c=> /[0-9]/.test(c)? d[c] : c).join('');
+}
+
+function cardLabel(level){ return LEVEL_NAMES[level] || `لول ${toFa(level)}`; }
+
+function getCard(id){ return state.cards.find(c=>c.id===id); }
+function makeCard(level, power){
+  const card = {id: state.nextCardId++, level, power};
+  if(level!==MONSTER_LEVEL) card.element = ELEMENT_KEYS[rand(0,ELEMENT_KEYS.length-1)];
+  recordCollected(card);
+  return card;
+}
+function recordCollected(card){
+  if(!card || card.level===MONSTER_LEVEL || !ELEMENTS[card.element]) return;
+  if(!state.collection) state.collection = {};
+  const k = String(card.level);
+  if(!Array.isArray(state.collection[k])) state.collection[k] = [];
+  if(!state.collection[k].includes(card.element)) state.collection[k].push(card.element);
+}
+function level5Unlocked(){ return state.stageCompleted.includes(LEVEL5_UNLOCK_STAGE); }
+function fusionAllowedLevel(level){ return (level>=1 && level<=3) || (level===4 && level5Unlocked()); }
+function elementBadge(c){
+  if(c.level===MONSTER_LEVEL) return '👹';
+  const e = ELEMENTS[c.element];
+  return e ? `${e.icon} ${e.name}` : '';
+}
+function cardInnerHTML(c, inMine){
+  return `<div class="lvl-tag">${cardLabel(c.level)}${inMine?' · در معدن ⛏️':''}</div>
+    <div class="elem">${elementBadge(c)}</div>
+    <div class="power">${toFa(c.power)}</div>
+    <div class="power-label">قدرت</div>`;
+}
+function cardTitle(c){
+  if(c.level===MONSTER_LEVEL) return `کارت هیولا (قدرت ${toFa(c.power)})`;
+  return `کارت ${elementBadge(c)} ${cardLabel(c.level)} (قدرت ${toFa(c.power)})`;
+}
+
+function renderHome(){
+  const grid = document.getElementById('homeCardsGrid');
+  grid.innerHTML = '';
+  state.cards.forEach(c=>{
+    const inMine = state.mine.slots.includes(c.id);
+    const div = document.createElement('div');
+    div.className = `cardbox lvl${c.level}` + (selectedForUpgrade===c.id ? ' selected':'');
+    div.innerHTML = cardInnerHTML(c, inMine);
+    attachCardPressHandlers(div, c.id);
+    grid.appendChild(div);
+  });
+  for(let i=state.cards.length;i<state.homeCapacity;i++){
+    const div = document.createElement('div');
+    div.className = 'empty-slot';
+    div.textContent = 'خالی';
+    grid.appendChild(div);
+  }
+  document.getElementById('capNote').textContent = `${toFa(state.cards.length)} از ${toFa(state.homeCapacity)} کارت پر شده`;
+}
+
+const LONG_PRESS_MS = 1000;
+function attachCardPressHandlers(div, cardId){
+  let pressTimer = null;
+  let longPressFired = false;
+  const start = ()=>{
+    longPressFired = false;
+    div.style.opacity = '0.7';
+    pressTimer = setTimeout(()=>{
+      longPressFired = true;
+      div.style.opacity = '1';
+      if(navigator.vibrate) navigator.vibrate(15);
+      showSellModal(cardId);
+    }, LONG_PRESS_MS);
+  };
+  const cancel = ()=>{
+    clearTimeout(pressTimer);
+    div.style.opacity = '1';
+  };
+  div.addEventListener('pointerdown', start);
+  div.addEventListener('pointerup', cancel);
+  div.addEventListener('pointerleave', cancel);
+  div.addEventListener('pointercancel', cancel);
+  div.addEventListener('click', (e)=>{
+    if(longPressFired){ longPressFired = false; e.preventDefault(); e.stopPropagation(); return; }
+    onCardClick(cardId);
+  });
+}
+
+function showSellModal(cardId){
+  const c = state.cards.find(cc=>cc.id===cardId);
+  if(!c) return;
+  const price = c.power*2;
+  showModal(`
+    <h3>فروش کارت</h3>
+    <p>می‌خواهی کارت ${cardLabel(c.level)} با قدرت ${toFa(c.power)} را بفروشی؟<br>
+    مبلغ فروش: <b>${toFa(price)} سکه</b> (دو برابر قدرت کارت)</p>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModal()">انصراف</button>
+      <button class="btn-danger" onclick="confirmSellCard(${cardId})">تأیید فروش</button>
+    </div>
+  `);
+}
+
+function confirmSellCard(cardId){
+  const c = state.cards.find(cc=>cc.id===cardId);
+  if(!c){ closeModal(); return; }
+  const slotIdx = state.mine.slots.indexOf(cardId);
+  if(slotIdx>=0){
+    const pending = minePending();
+    if(pending>0) addCoins(pending);
+    state.mine.slots[slotIdx] = null;
+    state.mine.lastCollect = Date.now();
+  }
+  const price = c.power*2;
+  addCoins(price);
+  state.cards = state.cards.filter(cc=>cc.id!==cardId);
+  if(selectedForUpgrade===cardId) selectedForUpgrade = null;
+  closeModal();
+  saveState();
+  toast(`کارت فروخته شد! +${toFa(price)} سکه`);
+  render();
+}
+
+function onCardClick(id){ openCardMenu(id); }
+
+function pickerCardsHTML(list, fnName, firstId){
+  return list.map(c=>`<div class="cardbox lvl${c.level}" style="display:inline-block;width:72px;margin:4px" onclick="${fnName}(${firstId},${c.id})">${cardInnerHTML(c,false)}</div>`).join('');
+}
+
+function openCardMenu(id){
+  const c = getCard(id);
+  if(!c) return;
+  const canFuse = fusionAllowedLevel(c.level);
+  let hint = '';
+  if(c.level===MONSTER_LEVEL) hint = '<br>کارت هیولا نژاد ندارد و جهش نمی‌پذیرد.';
+  else if(c.level===4 && !level5Unlocked()) hint = `<br>جهش کارت‌های لول ۴ با بردن مرحله‌ی ${toFa(LEVEL5_UNLOCK_STAGE)} باز می‌شود.`;
+  else if(c.level>=5) hint = '<br>کارت لول ۵ قابل جهش نیست.';
+  showModal(`
+    <h3>${cardTitle(c)}</h3>
+    <p>چه کاری می‌خواهی با این کارت انجام بدهی؟${hint}</p>
+    <div class="modal-actions" style="flex-direction:column">
+      <button class="btn-primary" onclick="startUpgradePick(${id})">ارتقا با کارت دیگر</button>
+      ${canFuse ? `<button class="btn-primary" onclick="startFusionPick(${id})">جهش با کارت هم‌نژاد</button>` : ''}
+      <button class="btn-ghost" onclick="closeModal()">بستن</button>
+    </div>
+  `);
+}
+
+/* ---- Upgrade: sacrifice any card, target gains HALF its power (rounded), costs its FULL power in coins ---- */
+function startUpgradePick(id){
+  const t = getCard(id);
+  if(!t){ closeModal(); return; }
+  const cap = LEVEL_CAPS[t.level];
+  if(t.power >= cap){ closeModal(); toast(`این کارت به حداکثر قدرت (${toFa(cap)}) رسیده و دیگر ارتقا نمی‌پذیرد.`); return; }
+  const others = state.cards.filter(c=>c.id!==id);
+  if(others.length===0){ closeModal(); toast('کارت دیگری برای فدا کردن نداری.'); return; }
+  showModal(`
+    <h3>ارتقای ${cardTitle(t)}</h3>
+    <p>کارتی را برای فدا شدن انتخاب کن. نصف قدرتش به این کارت اضافه می‌شود، اما هزینه‌ی کامل قدرتش را به سکه می‌پردازی.</p>
+    <div style="text-align:center;max-height:42vh;overflow:auto">${pickerCardsHTML(others,'confirmUpgradeStep',id)}</div>
+    <div class="modal-actions" style="margin-top:12px">
+      <button class="btn-ghost" onclick="openCardMenu(${id})">بازگشت</button>
+      <button class="btn-ghost" onclick="closeModal()">بستن</button>
+    </div>
+  `);
+}
+
+function upgradeNumbers(t, s2){
+  const cap = LEVEL_CAPS[t.level];
+  const gain = Math.round(s2.power/2);
+  const newPower = Math.min(cap, t.power + gain);
+  return {cap, gain, newPower, cost: s2.power};
+}
+
+function confirmUpgradeStep(tid, sid){
+  const t = getCard(tid), s2 = getCard(sid);
+  if(!t || !s2){ closeModal(); return; }
+  const u = upgradeNumbers(t, s2);
+  showModal(`
+    <h3>تأیید ارتقا</h3>
+    <p>${cardTitle(t)} با فدا کردن ${cardTitle(s2)} ارتقا می‌یابد.<br>
+    افزایش قدرت: <b>+${toFa(u.newPower - t.power)}</b> (نصف ${toFa(s2.power)}${u.newPower < t.power+u.gain ? '، تا سقف '+toFa(u.cap) : ''})<br>
+    قدرت جدید: <b>${toFa(u.newPower)}</b><br>
+    هزینه: <b>${toFa(u.cost)} سکه</b>${state.coins < u.cost ? '<br><span style="color:var(--crimson)">سکه‌ی کافی نداری.</span>' : ''}</p>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="startUpgradePick(${tid})">بازگشت</button>
+      <button class="btn-primary" onclick="applyUpgrade(${tid},${sid})">تأیید ارتقا</button>
+    </div>
+  `);
+}
+
+function removeCardsEverywhere(ids){
+  state.cards = state.cards.filter(c=>!ids.includes(c.id));
+  state.mine.slots = state.mine.slots.map(id=> ids.includes(id) ? null : id);
+  if(ids.includes(selectedForUpgrade)) selectedForUpgrade = null;
+}
+
+function applyUpgrade(tid, sid){
+  const t = getCard(tid), s2 = getCard(sid);
+  if(!t || !s2 || t.id===s2.id){ closeModal(); return; }
+  const u = upgradeNumbers(t, s2);
+  if(t.power >= u.cap){ closeModal(); toast('این کارت به حداکثر قدرت رسیده است.'); return; }
+  if(state.coins < u.cost){ toast('سکه‌ی کافی برای ارتقا نداری.'); return; }
+  state.coins -= u.cost;
+  t.power = u.newPower;
+  removeCardsEverywhere([sid]);
+  closeModal();
+  saveState();
+  toast(`ارتقا انجام شد! قدرت جدید: ${toFa(t.power)}`);
+  render();
+}
+
+/* ---- Fusion: same element + same level (1..3) -> next level, power = min(sum, cap of source level), cost = sum ---- */
+function fusionInfo(a, b){
+  const sum = a.power + b.power;
+  const newLevel = a.level + 1;
+  const cap = FUSION_CAP[a.level];
+  const power = Math.min(sum, cap);
+  const minPower = LEVEL_RANGE[newLevel][0];
+  return {sum, newLevel, cap, power, minPower, ok: power >= minPower, cost: sum};
+}
+
+function fusionPartners(a){
+  return state.cards.filter(c=> c.id!==a.id && c.level===a.level && c.element===a.element);
+}
+
+function startFusionPick(id){
+  const a = getCard(id);
+  if(!a){ closeModal(); return; }
+  if(!fusionAllowedLevel(a.level)){ closeModal(); toast('این کارت قابل جهش نیست.'); return; }
+  const partners = fusionPartners(a);
+  if(partners.length===0){ closeModal(); toast('کارت هم‌نژاد و هم‌سطح برای جهش نداری.'); return; }
+  showModal(`
+    <h3>جهش ${cardTitle(a)}</h3>
+    <p>یکی از کارت‌های هم‌نژاد و هم‌سطح را انتخاب کن:</p>
+    <div style="text-align:center;max-height:42vh;overflow:auto">${pickerCardsHTML(partners,'confirmFusionStep',id)}</div>
+    <div class="modal-actions" style="margin-top:12px">
+      <button class="btn-ghost" onclick="openCardMenu(${id})">بازگشت</button>
+      <button class="btn-ghost" onclick="closeModal()">بستن</button>
+    </div>
+  `);
+}
+
+function confirmFusionStep(aid, bid){
+  const a = getCard(aid), b = getCard(bid);
+  if(!a || !b){ closeModal(); return; }
+  const f = fusionInfo(a, b);
+  const resultTitle = `${elementBadge(a)} ${cardLabel(f.newLevel)}`;
+  if(!f.ok){
+    showModal(`
+      <h3>جهش ممکن نیست</h3>
+      <p>مجموع قدرت این دو کارت (${toFa(f.power)}) برای ساخت کارت ${cardLabel(f.newLevel)} کافی نیست؛ حداقل قدرت این کارت ${toFa(f.minPower)} است.</p>
+      <div class="modal-actions">
+        <button class="btn-ghost" onclick="startFusionPick(${aid})">بازگشت</button>
+        <button class="btn-ghost" onclick="closeModal()">بستن</button>
+      </div>
+    `);
+    return;
+  }
+  showModal(`
+    <h3>تأیید جهش</h3>
+    <p>${cardTitle(a)} و ${cardTitle(b)} با هم جهش می‌کنند و یک کارت <b>${resultTitle}</b> می‌سازند.<br>
+    قدرت کارت جدید: <b>${toFa(f.power)}</b>${f.sum > f.cap ? ` (مجموع ${toFa(f.sum)} بود، سقف ${toFa(f.cap)})` : ''}<br>
+    هزینه: <b>${toFa(f.cost)} سکه</b>${state.coins < f.cost ? '<br><span style="color:var(--crimson)">سکه‌ی کافی نداری.</span>' : ''}</p>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="startFusionPick(${aid})">بازگشت</button>
+      <button class="btn-primary" onclick="applyFusion(${aid},${bid})">تأیید جهش</button>
+    </div>
+  `);
+}
+
+function applyFusion(aid, bid){
+  const a = getCard(aid), b = getCard(bid);
+  if(!a || !b || a.id===b.id || a.level!==b.level || a.element!==b.element || !fusionAllowedLevel(a.level)){ closeModal(); return; }
+  const f = fusionInfo(a, b);
+  if(!f.ok){ closeModal(); toast('قدرت برای جهش کافی نیست.'); return; }
+  if(state.coins < f.cost){ toast('سکه‌ی کافی برای جهش نداری.'); return; }
+  state.coins -= f.cost;
+  const element = a.element;
+  removeCardsEverywhere([aid, bid]);
+  const fused = {id: state.nextCardId++, level: f.newLevel, power: f.power, element};
+  state.cards.push(fused);
+  recordCollected(fused);
+  closeModal();
+  saveState();
+  toast(`جهش انجام شد! کارت ${cardLabel(f.newLevel)} با قدرت ${toFa(f.power)} ساخته شد.`);
+  render();
+}
+
+/* ---------------- War ---------------- */
+function stageReward(stageNum){
+  if(stageNum<=10) return 50;
+  if(stageNum<=20) return 120;
+  if(stageNum<=30) return 200;
+  if(stageNum<=40) return 300;
+  if(stageNum<=50) return 420;
+  if(stageNum<=60) return 500;
+  if(stageNum<=70) return 550;
+  return 600;
+}
+
+function diamondReward(stageNum){
+  if(stageNum % 10 !== 0) return 0;
+  if(stageNum===40 || stageNum===50 || stageNum===60) return 2;
+  return 1;
+}
+
+const MAP_W = 300, MAP_STEP = 60;
+const CLOUD_BOUNDARIES = [20, 40, 60];
+const CLOUD_H = 175;
+const CLOUD_CIRCLES = [
+  [28,46,36],[80,42,42],[135,46,40],[190,40,44],[245,46,40],[290,50,34],
+  [8,88,44],[58,84,50],[112,90,46],[168,84,52],[224,90,48],[282,86,44],
+  [34,126,38],[92,130,42],[150,126,40],[208,130,44],[266,126,38]
+];
+const REWARD_RANGES = [[1,10],[11,20],[21,30],[31,40],[41,50],[51,60],[61,70],[71,75]];
+
+/* seasons: 1-20 normal, then every 20 stages the world gets redder and scarier */
+const SEASON_LEN = 20;
+const SEASON_COLORS = [[0,0,0,0],[190,60,50,.20],[150,30,35,.42],[100,10,20,.62]];
+const SEASON_PATH = ['#a99a76','#b98c74','#d09a8c','#e8b4a8'];
+const CLOUD_TINT = {20:['#ffffff','#b9c6d3','#5f7387'], 40:['#fbeaea','#c9a2a8','#8a5560'], 60:['#f1cfcf','#a56a74','#7c3340']};
+function seasonOf(n){ return Math.min(3, Math.floor((n-1)/SEASON_LEN)); }
+function seasonIntensity(n){
+  const base = Math.floor((n-1)/SEASON_LEN), frac = ((n-1)%SEASON_LEN)/SEASON_LEN;
+  const t = Math.max(0, Math.min(1, (frac-0.7)/0.3));          // blend into the next season over the last 30%
+  return Math.min(3, base + (base<3 ? t*t*(3-2*t) : 0));
+}
+function seasonColor(x){
+  const i = Math.min(2, Math.floor(x)), f = x - i, a = SEASON_COLORS[i], b = SEASON_COLORS[i+1];
+  const c = a.map((v,k)=> v + (b[k]-v)*f);
+  return `rgba(${c[0]|0},${c[1]|0},${c[2]|0},${c[3].toFixed(3)})`;
+}
+function updateWarAtmosphere(){
+  if(!state) return;
+  const onWar = document.getElementById('screen-war').classList.contains('active');
+  const s = seasonOf(currentStageFocus());
+  document.body.classList.remove('war-s1','war-s2','war-s3');
+  if(onWar && s>0) document.body.classList.add('war-s'+s);
+}
+
+function stageX(i){
+  const wave = Math.sin(i*0.85)*88;
+  const jit = ((i*37)%23 - 11) * 1.1;
+  return Math.max(38, Math.min(262, 150 + wave + jit));
+}
+function stageJitter(i){ return ((i*53)%17 - 8) * 1.2; }
+function smoothPath(pts){
+  // Catmull-Rom -> cubic bezier, passes exactly through every point
+  if(pts.length<2) return '';
+  let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
+  for(let i=0;i<pts.length-1;i++){
+    const p0 = pts[i-1] || pts[i], p1 = pts[i], p2 = pts[i+1], p3 = pts[i+2] || p2;
+    const c1x = p1.x + (p2.x-p0.x)/6, c1y = p1.y + (p2.y-p0.y)/6;
+    const c2x = p2.x - (p3.x-p1.x)/6, c2y = p2.y - (p3.y-p1.y)/6;
+    d += ` C ${c1x.toFixed(1)} ${c1y.toFixed(1)} ${c2x.toFixed(1)} ${c2y.toFixed(1)} ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
+  }
+  return d;
+}
+function currentStageFocus(){ return Math.min(state.stageUnlocked, TOTAL_STAGES); }
+function finalDone(){ return state.stageCompleted.includes(TOTAL_STAGES); }
+// the highest stage the player is allowed to see: the next cloud that hasn't been cleared hides everything above it
+function visibleStageLimit(){
+  for(const b of CLOUD_BOUNDARIES){ if(!state.stageCompleted.includes(b)) return b; }
+  return TOTAL_STAGES;
+}
+function scrollToCurrentStage(){
+  const el = (finalDone() && document.getElementById('stageLetter')) || document.getElementById('stageNode-' + currentStageFocus());
+  if(el) el.scrollIntoView({block:'center', inline:'nearest'});
+}
+
+function renderWar(){
+  const map = document.getElementById('stageMap');
+  if(!map) return;
+  const V = visibleStageLimit();
+  const cloud = V < TOTAL_STAGES;
+  const done70 = finalDone();
+  const R = cloud ? CLOUD_H : (done70 ? 160 : 30);          // space above the top visible stage
+  const topY = R + 24;
+  const yOf = n => topY + (V - n)*MAP_STEP + stageJitter(n-1);   // stage 1 is at the bottom
+  const H = topY + (V-1)*MAP_STEP + 56;
+
+  const legend = document.getElementById('rangeLegend');
+  if(legend){
+    legend.innerHTML = REWARD_RANGES.filter(r=>r[0]<=V)
+      .map(r=>`<span>${toFa(r[0])}–${toFa(r[1])}: ${toFa(stageReward(r[0]))} سکه</span>`).join('');
+  }
+
+  const pts = [];
+  for(let n=1;n<=V;n++) pts.push({x:stageX(n-1), y:yOf(n)});
+  const top = pts[V-1];
+  const reached = Math.min(currentStageFocus(), V);
+  let fullPts = pts.slice(), goldPts = pts.slice(0, reached);
+  let letterPt = null;
+  if(cloud){
+    fullPts.push({x:stageX(V), y: top.y - MAP_STEP*0.95});          // the road disappears into the cloud
+  } else if(done70){
+    letterPt = {x:stageX(TOTAL_STAGES), y: Math.max(60, top.y - 88)};
+    fullPts.push(letterPt);
+    goldPts = fullPts.slice();
+  }
+
+  let cloudSvg = '';
+  if(cloud){
+    const shade = CLOUD_CIRCLES.map(c=>`<circle cx="${c[0]}" cy="${c[1]+9}" r="${c[2]}"/>`).join('');
+    const white = CLOUD_CIRCLES.map(c=>`<circle cx="${c[0]}" cy="${c[1]}" r="${c[2]}"/>`).join('');
+    const tint = CLOUD_TINT[V] || CLOUD_TINT[20];
+    cloudSvg = `<g filter="url(#fogBlur)"><g fill="${tint[1]}" opacity=".6">${shade}</g><g fill="${tint[0]}">${white}</g></g>`;
+  }
+  map.style.aspectRatio = `${MAP_W} / ${H}`;
+
+  // road: one dotted segment per season, lighter on the darker backgrounds
+  let roadSvg = '';
+  for(let g=0; g*SEASON_LEN < fullPts.length-1; g++){
+    const seg = fullPts.slice(g*SEASON_LEN, Math.min(fullPts.length, g*SEASON_LEN + SEASON_LEN + 1));
+    roadSvg += `<path d="${smoothPath(seg)}" fill="none" stroke="${SEASON_PATH[Math.min(3,g)]}" stroke-width="4" stroke-linecap="round" stroke-dasharray="1 10"/>`;
+  }
+  // thorns creeping in from both edges after season 1
+  let thorns = '';
+  for(let n=SEASON_LEN+1; n<=V; n++){
+    const sn = seasonOf(n), base = [0,11,18,26][sn], y0 = topY + (V-n)*MAP_STEP;
+    for(let k=0;k<2;k++){
+      const y = y0 - k*30 + 4, w = base + ((n*7+k*5)%5)*2, h = 13 + sn*2;
+      thorns += `<polygon points="0,${y-h} ${w},${y} 0,${y+h}"/><polygon points="${MAP_W},${y-h} ${MAP_W-w},${y+(k?3:0)} ${MAP_W},${y+h}"/>`;
+    }
+  }
+  map.innerHTML = `<svg viewBox="0 0 ${MAP_W} ${H}" preserveAspectRatio="none">
+    <defs><filter id="fogBlur" x="-20%" y="-30%" width="140%" height="170%"><feGaussianBlur stdDeviation="6"/></filter></defs>
+    <g fill="rgba(30,4,8,.55)">${thorns}</g>
+    ${roadSvg}
+    <path d="${smoothPath(goldPts)}" fill="none" stroke="#c69a3a" stroke-width="5" stroke-linecap="round" stroke-dasharray="1 10"/>
+    ${cloudSvg}
+  </svg>`;
+
+  // background: normal parchment at the bottom, redder and darker with every season going up
+  const stops = [`${seasonColor(seasonIntensity(V))} 0%`];
+  for(let n=V;n>=1;n--){
+    const y = topY + (V-n)*MAP_STEP;
+    stops.push(`${seasonColor(seasonIntensity(n))} ${(y/H*100).toFixed(2)}%`);
+  }
+  stops.push(`${seasonColor(seasonIntensity(1))} 100%`);
+  map.style.backgroundImage = `linear-gradient(to bottom, ${stops.join(',')})`;
+
+  // floating embers in the scary seasons
+  for(let n=SEASON_LEN+2; n<=V; n+=3){
+    const em = document.createElement('span');
+    em.className = 'ember s' + seasonOf(n);
+    em.style.left = (10 + ((n*53)%80)) + '%';
+    em.style.top = ((topY + (V-n)*MAP_STEP)/H*100) + '%';
+    em.style.animationDuration = (4 + ((n*7)%5)) + 's';
+    em.style.animationDelay = '-' + ((n*11)%7) + 's';
+    map.appendChild(em);
+  }
+
+  if(cloud){
+    const lab = document.createElement('div');
+    lab.className = 'cloud-label';
+    lab.style.top = (R*0.40/H*100) + '%';
+    lab.style.color = (CLOUD_TINT[V] || CLOUD_TINT[20])[2];
+    lab.textContent = `☁️ با تمام کردن مرحله‌ی ${toFa(V)} ابرها کنار می‌روند`;
+    lab.onclick = ()=> toast(`ابرها با تمام کردن مرحله‌ی ${toFa(V)} کنار می‌روند.`);
+    map.appendChild(lab);
+  }
+
+  for(let n=1;n<=V;n++){
+    const node = document.createElement('div');
+    const done = state.stageCompleted.includes(n);
+    const implemented = n<=MAX_STAGE_IMPLEMENTED;
+    const unlocked = n<=state.stageUnlocked && implemented;
+    let cls = 'map-node ';
+    if(done) cls += 'done';
+    else if(unlocked) cls += 'available' + (n===state.stageUnlocked ? ' current' : '');
+    else cls += 'locked';
+    node.className = cls;
+    node.id = 'stageNode-' + n;
+    const pt = pts[n-1];
+    node.style.left = (pt.x/MAP_W*100) + '%';
+    node.style.top = (pt.y/H*100) + '%';
+    node.textContent = toFa(n);
+    if(n%10===0){
+      const gem = document.createElement('span');
+      gem.className = 'node-gem';
+      gem.textContent = '💎';
+      node.appendChild(gem);
+    }
+    if(!unlocked){
+      const lock = document.createElement('span');
+      lock.className='mini-lock';
+      lock.textContent = '🔒';
+      node.appendChild(lock);
+    }
+    node.onclick = ()=> onStageClick(n, unlocked, implemented);
+    map.appendChild(node);
+  }
+
+  if(letterPt){
+    const l = document.createElement('div');
+    l.className = 'map-letter';
+    l.id = 'stageLetter';
+    l.style.left = (letterPt.x/MAP_W*100) + '%';
+    l.style.top = (letterPt.y/H*100) + '%';
+    l.textContent = '✉️';
+    l.onclick = openFinalLetter;
+    map.appendChild(l);
+    const cap = document.createElement('div');
+    cap.style.cssText = `position:absolute;transform:translate(-50%,0);left:${letterPt.x/MAP_W*100}%;top:${(letterPt.y+40)/H*100}%;font-size:11px;font-weight:700;color:#6b5a3a;white-space:nowrap;z-index:2;`;
+    cap.textContent = 'از طرف هومن صراف';
+    map.appendChild(cap);
+  }
+}
+
+function openFinalLetter(){
+  showModal(`
+    <h3>✉️ نامه‌ای برای تو</h3>
+    <p style="line-height:2.1">تبریک می‌گویم! 🎉<br>
+    قدرت کارت‌هایت از همه‌ی دشمن‌ها بالاتر است و تو نفر اول هستی. 🏆<br>
+    به‌زودی مراحل بیشتر و سخت‌تری در راه است؛ آماده‌ی نبردهای بعدی باش!</p>
+    <p style="text-align:left;font-weight:700;color:var(--ink);margin:-4px 0 14px">از طرف هومن صراف</p>
+    <div class="modal-actions">
+      <button class="btn-primary" onclick="closeModal()">ممنون ✨</button>
+    </div>
+  `);
+}
+
+let battleSelection = [];
+
+function onStageClick(n, unlocked, implemented){
+  if(!implemented){ toast('این مرحله به‌زودی اضافه می‌شود.'); return; }
+  if(!unlocked){ toast('این مرحله هنوز قفل است. اول مراحل قبلی را ببر.'); return; }
+  const freeCards = state.cards.filter(c=> !state.mine.slots.includes(c.id));
+  if(freeCards.length===0){ toast('کارت آزادی برای جنگ نداری؛ همه در معدن مشغولند یا خانه‌ات خالی است.'); return; }
+  battleSelection = [];
+  renderStageModal(n);
+}
+
+function renderStageModal(n){
+  const enemyPower = STAGE_POWERS[n-1];
+  const reward = stageReward(n);
+  const done = state.stageCompleted.includes(n);
+  const sumPower = battleSelection.reduce((s,id)=>{const c=state.cards.find(cc=>cc.id===id); return s+(c?c.power:0);},0);
+  const freeCards = state.cards.filter(c=> !state.mine.slots.includes(c.id));
+  const busyCount = state.cards.length - freeCards.length;
+  const cardsHtml = freeCards.map(c=>{
+    const sel = battleSelection.includes(c.id);
+    return `<div class="cardbox lvl${c.level}${sel?' selected':''}" style="display:inline-block;width:72px;margin:4px" onclick="toggleBattleCard(${n},${c.id})">${cardInnerHTML(c,false)}</div>`;
+  }).join('');
+  showModal(`
+    <h3>مرحله‌ی ${toFa(n)}</h3>
+    <p>قدرت دشمن: ${toFa(enemyPower)}${done?' — قبلاً برده‌ای':''}<br>پاداش برد: ${toFa(reward)} سکه<br>
+    می‌توانی تا ${toFa(state.battleCardLimit)} کارت را با هم انتخاب کنی، مجموع قدرتشان با دشمن می‌جنگد.${busyCount>0?`<br><span style="color:var(--crimson)">${toFa(busyCount)} کارت در معدن مشغولند و در دسترس نیستند.</span>`:''}<br>
+    مجموع قدرت انتخاب‌شده: <b>${toFa(sumPower)}</b></p>
+    <div style="text-align:center">${cardsHtml}</div>
+    <div class="modal-actions" style="margin-top:12px">
+      <button class="btn-ghost" onclick="closeModal()">بستن</button>
+      <button class="btn-danger" onclick="attackStage(${n})">حمله</button>
+    </div>
+  `);
+}
+
+function toggleBattleCard(n, cardId){
+  const idx = battleSelection.indexOf(cardId);
+  if(idx>=0){
+    battleSelection.splice(idx,1);
+  } else {
+    if(battleSelection.length >= state.battleCardLimit){
+      toast(`حداکثر ${toFa(state.battleCardLimit)} کارت می‌توانی در یک حمله استفاده کنی.`);
+      return;
+    }
+    battleSelection.push(cardId);
+  }
+  renderStageModal(n);
+}
+
+function attackStage(n){
+  if(battleSelection.length===0){ toast('حداقل یک کارت انتخاب کن.'); return; }
+  const enemyPower = STAGE_POWERS[n-1];
+  const sumPower = battleSelection.reduce((s,id)=>{const c=state.cards.find(cc=>cc.id===id); return s+(c?c.power:0);},0);
+  const already = state.stageCompleted.includes(n);
+  if(sumPower >= enemyPower){
+    if(!already){
+      state.stageCompleted.push(n);
+      const reward = stageReward(n);
+      const diaReward = diamondReward(n);
+      addCoins(reward);
+      if(diaReward>0) state.diamonds += diaReward;
+      if(n === state.stageUnlocked && state.stageUnlocked < MAX_STAGE_IMPLEMENTED){
+        state.stageUnlocked = n+1;
+      }
+      let extra = '';
+      if(n===WHEEL_UNLOCK_STAGE){ state.wheelLastSpin = Date.now() - WHEEL_COOLDOWN_MS; extra = ' · گردونه‌ی شانس باز شد 🎡'; }
+      if(n===EXCHANGE_UNLOCK_STAGE){ state.exchangeAnchor = Date.now(); extra = ' · تبادل سکه به الماس در بازار باز شد 💎'; }
+      if(n===FREE_BATTLE_UNLOCK_STAGE){ extra += ' · نبرد آزاد باز شد ⚔️🔁'; }
+      if(n===LEVEL5_UNLOCK_STAGE){ extra += ' · کارت لول ۵ در بازار و جهش لول ۴ باز شد 🔴'; }
+      if(CLOUD_BOUNDARIES.includes(n)){ extra += ' · ابرها کنار رفتند ☁️'; }
+      if(n===TOTAL_STAGES){ extra += ' · یک نامه پیدا شد ✉️'; }
+      toast(`دشمن مرحله‌ی ${toFa(n)} شکست خورد! +${toFa(reward)} سکه${diaReward>0?` و +${toFa(diaReward)} 💎`:''}${extra}`);
+    } else {
+      toast('دشمن این مرحله دوباره شکست خورد!');
+    }
+    saveState();
+  } else {
+    toast(`قدرت ترکیبی‌ات (${toFa(sumPower)}) در برابر دشمن (قدرت ${toFa(enemyPower)}) کم آورد.`);
+  }
+  battleSelection = [];
+  closeModal();
+  render();
+  if(sumPower>=enemyPower && !already && (CLOUD_BOUNDARIES.includes(n) || n===TOTAL_STAGES)) setTimeout(scrollToCurrentStage, 150);
+}
+
+/* ---------------- Mine ---------------- */
+const MINE_PERIOD_MS = 30*60*1000;
+
+function minePower(){
+  return state.mine.slots.reduce((sum,id)=>{
+    if(id===null) return sum;
+    const c = state.cards.find(cc=>cc.id===id);
+    return sum + (c? c.power:0);
+  },0);
+}
+
+function minePending(){
+  const power = minePower();
+  if(power<=0) return 0;
+  const elapsed = Date.now() - state.mine.lastCollect;
+  const raw = Math.max(0, Math.floor((elapsed/MINE_PERIOD_MS)*power));
+  return Math.min(state.mineCoinCap, raw);
+}
+
+const CARD_BG = {1:'var(--lvl1)',2:'var(--lvl2)',3:'var(--lvl3)',4:'var(--lvl4)',5:'var(--lvl5)',6:'var(--lvl6)'};
+const CARD_TEXT = {1:'var(--ink)',2:'var(--ink)',3:'#173816',4:'#4a2c0a',5:'#fff5f0',6:'#33184d'};
+const CARD_BORDER = {1:'var(--lvl1-border)',2:'var(--lvl2-border)',3:'var(--lvl3-border)',4:'var(--lvl4-border)',5:'var(--lvl5-border)',6:'var(--lvl6-border)'};
+
+function renderMine(){
+  const slotsEl = document.getElementById('mineSlots');
+  slotsEl.innerHTML = '';
+  state.mine.slots.forEach((cardId, idx)=>{
+    const card = cardId? state.cards.find(c=>c.id===cardId) : null;
+    const div = document.createElement('div');
+    if(card){
+      div.className = `mine-slot filled lvl${card.level}`;
+      div.style.borderColor = CARD_BORDER[card.level];
+      div.style.background = CARD_BG[card.level];
+      div.innerHTML = `<div style="font-weight:700">${cardLabel(card.level)}</div><div style="font-size:11px">${elementBadge(card)}</div><div style="font-size:18px;font-weight:800">${toFa(card.power)}</div><div style="font-size:10px">برداشتن</div>`;
+    } else {
+      div.className = 'mine-slot';
+      div.textContent = 'برای گذاشتن کارت بزن';
+    }
+    div.onclick = ()=> onMineSlotClick(idx);
+    slotsEl.appendChild(div);
+  });
+  document.getElementById('minePending').textContent = toFa(minePending());
+  document.getElementById('mineCapLabel').textContent = toFa(state.mineCoinCap);
+  document.getElementById('collectBtn').disabled = minePending()<=0;
+}
+
+function onMineSlotClick(idx){
+  const current = state.mine.slots[idx];
+  if(current){
+    // remove card from mine, collecting pending first to be fair
+    const pending = minePending();
+    addCoins(pending);
+    if(pending>0) toast(`${toFa(pending)} سکه برداشت شد.`);
+    state.mine.slots[idx] = null;
+    state.mine.lastCollect = Date.now();
+    saveState();
+    render();
+    return;
+  }
+  const availableCards = state.cards.filter(c=> !state.mine.slots.includes(c.id));
+  if(availableCards.length===0){
+    toast('کارت آزادی برای گذاشتن در معدن نداری.');
+    return;
+  }
+  const html = availableCards.map(c=>
+    `<div class="cardbox lvl${c.level}" style="display:inline-block;width:72px;margin:4px" onclick="placeInMine(${idx},${c.id})">${cardInnerHTML(c,false)}</div>`).join('');
+  showModal(`
+    <h3>گذاشتن کارت در معدن</h3>
+    <p>یک کارت را برای کار در معدن انتخاب کن:</p>
+    <div style="text-align:center">${html}</div>
+    <div class="modal-actions" style="margin-top:12px">
+      <button class="btn-ghost" onclick="closeModal()">انصراف</button>
+    </div>
+  `);
+}
+
+function placeInMine(idx, cardId){
+  // collect any pending first with old config
+  const pending = minePending();
+  if(pending>0){ addCoins(pending); }
+  state.mine.slots[idx] = cardId;
+  state.mine.lastCollect = Date.now();
+  closeModal();
+  saveState();
+  render();
+}
+
+function collectMine(){
+  const pending = minePending();
+  if(pending<=0) return;
+  addCoins(pending);
+  state.mine.lastCollect = Date.now();
+  saveState();
+  toast(`${toFa(pending)} سکه برداشت شد!`);
+  render();
+}
+
+/* ---------------- Render All ---------------- */
+function render(){
+  if(!state) return;
+  document.getElementById('coinCount').textContent = toFa(state.coins);
+  document.getElementById('diamondCount').textContent = toFa(state.diamonds);
+  document.getElementById('homeSub').textContent = state.cards.length? `${toFa(state.cards.length)} کارت داری` : 'برای گرفتن اولین کارتت بزن';
+  const mp = minePower();
+  document.getElementById('mineSub').textContent = mp>0? `در حال تولید ${toFa(mp)} سکه/نیم‌ساعت` : 'کارت‌هایت را کار بگذار';
+  document.getElementById('wheelSub').textContent = wheelSubText();
+  renderHome();
+  renderWar();
+  renderMine();
+  renderUpgrades();
+  renderExchange();
+  renderFreeWarEntry();
+  renderLevel5Market();
+  updateFab();
+  updateWarAtmosphere();
+  const cs = document.getElementById('collectionSub');
+  if(cs){
+    let got = 0; COLLECTION_LEVELS.forEach(l=>{ got += collectedCount(l); });
+    cs.textContent = `${toFa(got)} از ${toFa(COLLECTION_LEVELS.length*ELEMENT_KEYS.length)} کارت جمع شده`;
+  }
+}
+
+function renderLevel5Market(){
+  const item = document.getElementById('lvl5Item');
+  const range = document.getElementById('lvl5Range'), btn = document.getElementById('lvl5Btn');
+  if(!item || !range || !btn) return;
+  const ok = level5Unlocked();
+  item.classList.toggle('hidden', !ok);
+  if(ok){
+    range.textContent = `قدرت بین ${toFa(LEVEL_RANGE[5][0])} تا ${toFa(LEVEL_RANGE[5][1])} · قیمت ${toFa(LEVEL_PRICE[5])} سکه`;
+    btn.disabled = false;
+  }
+}
+
+function updateFab(){
+  const fab = document.getElementById('freeWarFab');
+  if(!fab || !state) return;
+  const onWar = document.getElementById('screen-war').classList.contains('active');
+  fab.classList.toggle('hidden', !(onWar && freeBattleUnlocked()));
+}
+
+/* ---------------- Collection ---------------- */
+const COLLECTION_LEVELS = [1,2,3,4,5];
+let collectionLevel = 1;
+function collectedCount(level){
+  const arr = (state && state.collection && state.collection[String(level)]) || [];
+  return arr.length;
+}
+function openCollection(){ showScreen('screen-collection','کلکسیون'); renderCollection(); }
+function selectCollectionLevel(l){ collectionLevel = l; renderCollection(); }
+function renderCollection(){
+  const lv = document.getElementById('collectionLevels');
+  const main = document.getElementById('collectionMain');
+  if(!lv || !main || !state) return;
+  const total = ELEMENT_KEYS.length;
+  lv.innerHTML = COLLECTION_LEVELS.map(l=>{
+    const n = collectedCount(l);
+    return `<button class="coll-lvl-btn${l===collectionLevel?' active':''}" style="background:${CARD_BG[l]};border-color:${CARD_BORDER[l]};color:${CARD_TEXT[l]}" onclick="selectCollectionLevel(${l})">
+      <span>${cardLabel(l)}</span><span class="cl-count">${toFa(n)}/${toFa(total)}${n>=total?' ✅':''}</span></button>`;
+  }).join('');
+  const have = (state.collection && state.collection[String(collectionLevel)]) || [];
+  const full = have.length >= total;
+  main.innerHTML = `<div class="coll-title">${cardLabel(collectionLevel)} — ${toFa(have.length)} از ${toFa(total)} نژاد${full?' 🎉 کامل شد!':''}</div>
+    <div class="coll-grid">` + ELEMENT_KEYS.map(k=>{
+      const e = ELEMENTS[k];
+      return have.includes(k)
+        ? `<div class="coll-tile" style="background:${CARD_BG[collectionLevel]};border-color:${CARD_BORDER[collectionLevel]};color:${CARD_TEXT[collectionLevel]}"><div class="ct-icon">${e.icon}</div><div class="ct-name">${e.name}</div></div>`
+        : `<div class="coll-tile missing"><div class="ct-icon">${e.icon}</div><div class="ct-name">${e.name} — هنوز نداری</div></div>`;
+    }).join('') + `</div>`;
+}
+
+function freeBattleUnlocked(){ return state.stageCompleted.includes(FREE_BATTLE_UNLOCK_STAGE); }
+
+function renderFreeWarEntry(){
+  const desc = document.getElementById('freeWarEntryDesc');
+  const btn = document.getElementById('freeWarEntryBtn');
+  if(!desc || !btn) return;
+  if(freeBattleUnlocked()){
+    const totalLeft = state.freeBattleUses.reduce((a,b)=>a+b,0);
+    desc.textContent = `یک بخش جداگانه با ۴ مرحله‌ی تکرارپذیر — هرکدام تا ۱۰۰ بار قابل بردن. مجموع بردهای باقی‌مانده: ${toFa(totalLeft)}`;
+    btn.disabled = false;
+  } else {
+    desc.textContent = `با بردن مرحله‌ی ${toFa(FREE_BATTLE_UNLOCK_STAGE)} در میدان جنگ باز می‌شود.`;
+    btn.disabled = true;
+  }
+}
+
+function renderUpgrades(){
+  const el = document.getElementById('upgradesContainer');
+  if(!el) return;
+  let html = '';
+
+  // Battle card capacity
+  const bLimit = state.battleCardLimit;
+  const bPrice = BATTLE_UPGRADE_PRICE[bLimit];
+  html += `<div class="market-item">
+    <div class="swatch" style="background:linear-gradient(180deg,#f6d98a,#d9ae3f);border-color:#a9791f;display:flex;align-items:center;justify-content:center;font-size:20px;">⚔️</div>
+    <div class="market-info">
+      <div class="mname">گنجایش حمله</div>
+      <div class="mrange">فعلاً حداکثر ${toFa(bLimit)} کارت در جنگ${bPrice? ` · ارتقا به ${toFa(bLimit+1)} کارت: ${toFa(bPrice)} سکه` : ' · به حداکثر رسیده'}</div>
+    </div>
+    ${bPrice ? `<button class="buy-btn" onclick="upgradeBattleLimit()">ارتقا</button>` : ''}
+  </div>`;
+
+  // Mine card capacity
+  const mCap = state.mineCapacity;
+  const mCost = MINE_UPGRADE_PRICE[mCap];
+  html += `<div class="market-item">
+    <div class="swatch" style="background:linear-gradient(180deg,#cfe3ee,#8fb9cc);border-color:#4f7d8f;display:flex;align-items:center;justify-content:center;font-size:20px;">⛏️</div>
+    <div class="market-info">
+      <div class="mname">گنجایش معدن (تعداد کارت)</div>
+      <div class="mrange">فعلاً حداکثر ${toFa(mCap)} کارت در معدن${mCost? ` · ارتقا به ${toFa(mCap+1)} کارت: ${formatCost(mCost)}` : ' · به حداکثر رسیده'}</div>
+    </div>
+    ${mCost ? `<button class="buy-btn" onclick="upgradeMineCapacity()">ارتقا</button>` : ''}
+  </div>`;
+
+  // Mine coin storage capacity
+  const mcCap = state.mineCoinCap;
+  const mcStep = MINE_COINCAP_STEPS[mcCap];
+  html += `<div class="market-item">
+    <div class="swatch" style="background:linear-gradient(180deg,var(--gold-bright),var(--gold));border-color:#8a6a1f;display:flex;align-items:center;justify-content:center;font-size:20px;">💰</div>
+    <div class="market-info">
+      <div class="mname">ظرفیت نگهداری سکه‌ی معدن</div>
+      <div class="mrange">فعلاً سقف ${toFa(mcCap)} سکه${mcStep? ` · ارتقا به ${toFa(mcStep.next)} سکه: ${formatCost(mcStep)}` : ' · به حداکثر رسیده'}</div>
+    </div>
+    ${mcStep ? `<button class="buy-btn" onclick="upgradeMineCoinCap()">ارتقا</button>` : ''}
+  </div>`;
+
+  // Home card storage capacity (unlocks after stage 30)
+  const hCap = state.homeCapacity;
+  const hUnlocked = state.stageCompleted.includes(HOME_CAPACITY_UNLOCK_STAGE);
+  const hPrice = HOME_CAPACITY_PRICE[hCap];
+  html += `<div class="market-item">
+    <div class="swatch" style="background:linear-gradient(180deg,#e6d8c2,#bfa878);border-color:#8a6a3f;display:flex;align-items:center;justify-content:center;font-size:20px;">🏠</div>
+    <div class="market-info">
+      <div class="mname">گنجایش خانه‌ی کارت‌ها</div>
+      <div class="mrange">${!hUnlocked? `🔒 با بردن مرحله‌ی ${toFa(HOME_CAPACITY_UNLOCK_STAGE)} باز می‌شود` : `فعلاً حداکثر ${toFa(hCap)} کارت${hPrice? ` · ارتقا به ${toFa(hCap+1)} کارت: ${toFa(hPrice)} سکه` : ' · به حداکثر رسیده'}`}</div>
+    </div>
+    ${(hUnlocked && hPrice) ? `<button class="buy-btn" onclick="upgradeHomeCapacity()">ارتقا</button>` : ''}
+  </div>`;
+
+  el.innerHTML = html;
+}
+
+function upgradeHomeCapacity(){
+  if(!state.stageCompleted.includes(HOME_CAPACITY_UNLOCK_STAGE)) return;
+  const price = HOME_CAPACITY_PRICE[state.homeCapacity];
+  if(!price) return;
+  if(state.coins < price){ toast('سکه‌ی کافی نداری.'); return; }
+  state.coins -= price;
+  state.homeCapacity += 1;
+  saveState();
+  toast(`گنجایش خانه به ${toFa(state.homeCapacity)} کارت افزایش یافت!`);
+  render();
+}
+
+function upgradeBattleLimit(){
+  const price = BATTLE_UPGRADE_PRICE[state.battleCardLimit];
+  if(!price) return;
+  if(state.coins < price){ toast('سکه‌ی کافی نداری.'); return; }
+  state.coins -= price;
+  state.battleCardLimit += 1;
+  saveState();
+  toast(`گنجایش حمله به ${toFa(state.battleCardLimit)} کارت افزایش یافت!`);
+  render();
+}
+
+function upgradeMineCoinCap(){
+  const step = MINE_COINCAP_STEPS[state.mineCoinCap];
+  if(!step) return;
+  if(!canAfford(step)){ toast('سکه یا الماس کافی نداری.'); return; }
+  payCost(step);
+  state.mineCoinCap = step.next;
+  saveState();
+  toast(`ظرفیت نگهداری سکه‌ی معدن به ${toFa(state.mineCoinCap)} افزایش یافت!`);
+  render();
+}
+
+function upgradeMineCapacity(){
+  const cost = MINE_UPGRADE_PRICE[state.mineCapacity];
+  if(!cost) return;
+  if(!canAfford(cost)){ toast('سکه یا الماس کافی نداری.'); return; }
+  payCost(cost);
+  state.mineCapacity += 1;
+  state.mine.slots.push(null);
+  saveState();
+  toast(`گنجایش معدن به ${toFa(state.mineCapacity)} کارت افزایش یافت!`);
+  render();
+}
+
+/* ---------------- Music: «سکوتِ پیش از سپیده» — an original piece, synthesized live ---------------- */
+const MUSIC_TITLE = 'سکوتِ پیش از سپیده';
+const BEAT = 1.0;                 // 60 bpm: slow and heavy
+const EIGHTH = BEAT/2;
+const BAR_DUR = BEAT*4;
+const midiHz = m => 440*Math.pow(2,(m-69)/12);
+const hum = () => (Math.random()-0.5)*0.035;   // tiny human timing drift
+
+const CHORDS = {
+  Dm7:   {bass:38, pad:[50,53,57,60]},
+  Bbmaj7:{bass:34, pad:[46,50,53,57]},
+  Gm7:   {bass:43, pad:[50,53,55,58]},
+  A7sus4:{bass:45, pad:[50,52,55,57]},
+  A7:    {bass:45, pad:[52,55,57,61]},
+  Dm:    {bass:38, pad:[50,57,62,65]},
+  F:     {bass:41, pad:[48,53,57,60]},
+  Gm:    {bass:43, pad:[50,55,58,62]},
+  A:     {bass:45, pad:[52,57,61,64]},
+  Bb:    {bass:34, pad:[46,53,58,62]}
+};
+const PROGRESSION = [
+  ['Dm7'],['Bbmaj7'],['Gm7'],['A7sus4','A7'],['Dm'],['F'],['Gm'],['A'],
+  ['Bb'],['F'],['Gm'],['Dm'],['Bb'],['Gm'],['A7sus4'],['A7']
+];
+// melody: [position in eighths, midi note, length in eighths] — long falling "sighs", one rising hope at the end
+const MELODY = [
+  [[0,69,3],[3,67,1],[4,65,4]],
+  [[0,65,2],[2,67,2],[4,69,2],[6,70,2]],
+  [[0,72,4],[4,70,2],[6,69,2]],
+  [[0,69,3],[3,67,1],[4,64,2],[6,61,2]],
+  [[0,62,4],[4,65,2],[6,69,2]],
+  [[0,72,3],[3,69,1],[4,72,2],[6,74,2]],
+  [[0,74,4],[4,72,2],[6,70,2]],
+  [[0,69,2],[2,73,2],[4,74,4]],
+  [[0,74,4],[4,72,2],[6,70,2]],
+  [[0,69,3],[3,72,1],[4,77,4]],
+  [[0,76,2],[2,74,2],[4,70,4]],
+  [[0,69,4],[4,65,2],[6,62,2]],
+  [[0,65,3],[3,67,1],[4,69,2],[6,70,2]],
+  [[0,72,4],[4,74,2],[6,72,2]],
+  [[0,74,4],[4,67,4]],
+  [[0,73,4],[4,69,4]]
+];
+const ARP = [0,1,2,3,2,1,2,1];
+
+function makeReverbIR(ctx, seconds, decay){
+  // Dark, smooth tail: the noise is low-passed more and more as it decays (white-noise tails sound like hiss)
+  const rate = ctx.sampleRate, len = Math.floor(rate*seconds), pre = Math.floor(rate*0.018);
+  const buf = ctx.createBuffer(1, len, rate);
+  for(let c=0;c<1;c++){
+    const d = buf.getChannelData(c);
+    let y = 0;
+    for(let i=0;i<len;i++){
+      const x = i/len;
+      const a = 0.55 + 0.38*x;                       // smoothing grows with time -> darker tail
+      y = a*y + (1-a)*(Math.random()*2-1);
+      const fadeIn = i<pre ? 0 : Math.min(1, (i-pre)/(rate*0.03));
+      d[i] = y * Math.pow(1-x, decay) * fadeIn * 2.2;
+    }
+  }
+  return buf;
+}
+function buildMusicGraph(ctx){
+  const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 35;
+  const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 4800; lp.Q.value = 0.5;   // tames any remaining brightness/hiss
+  const comp = ctx.createDynamicsCompressor();
+  comp.threshold.value = -12; comp.knee.value = 20; comp.ratio.value = 2.5; comp.attack.value = 0.03; comp.release.value = 0.6;
+  const master = ctx.createGain(); master.gain.value = 1.2;
+  master.connect(hp); hp.connect(lp); lp.connect(comp); comp.connect(ctx.destination);
+  const conv = ctx.createConvolver(); conv.buffer = makeReverbIR(ctx, 2.6, 2.4);
+  const wet = ctx.createGain(); wet.gain.value = 0.38;
+  conv.connect(wet); wet.connect(master);
+  const dry = ctx.createGain(); dry.gain.value = 0.9; dry.connect(master);
+  return {
+    ctx,
+    newBus(){ const bus = ctx.createGain(); bus.gain.value = 1; bus.connect(dry); bus.connect(conv); return bus; }
+  };
+}
+
+function notePiano(ctx, bus, t, midi, dur, vel, light){
+  dur = Math.max(dur, 0.5);
+  const f = midiHz(midi), peak = 0.20*vel;
+  const lp = ctx.createBiquadFilter(); lp.type = 'lowpass';
+  lp.frequency.setValueAtTime(Math.min(4200, f*5), t);
+  lp.frequency.exponentialRampToValueAtTime(Math.max(500, f*2), t+dur+0.4);
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.linearRampToValueAtTime(peak, t+0.012);
+  g.gain.exponentialRampToValueAtTime(peak*0.45, t+0.35);
+  g.gain.exponentialRampToValueAtTime(peak*0.30, t+dur);
+  g.gain.exponentialRampToValueAtTime(0.0001, t+dur+1.4);
+  lp.connect(g); g.connect(bus);
+  (light ? [['triangle', 1, 1]] : [['triangle', 1, 1], ['sine', 2, 0.3]]).forEach(([type, mult, amp])=>{
+    const o = ctx.createOscillator(); o.type = type; o.frequency.value = f*mult;
+    const og = ctx.createGain(); og.gain.value = amp;
+    o.connect(og); og.connect(lp);
+    o.start(t); o.stop(t+dur+1.5);
+  });
+}
+function notePad(ctx, bus, t, midi, dur, vel){
+  // soft triangle pair instead of sawtooth: no buzzy upper harmonics
+  const f = midiHz(midi);
+  const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900; lp.Q.value = 0.3;
+  const g = ctx.createGain(), peak = 0.042*vel;
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.linearRampToValueAtTime(peak, t+1.1);
+  g.gain.setValueAtTime(peak, t+dur);
+  g.gain.linearRampToValueAtTime(0.0001, t+dur+1.6);
+  lp.connect(g); g.connect(bus);
+  [-5, 5].forEach(cents=>{
+    const o = ctx.createOscillator(); o.type = 'triangle'; o.frequency.value = f; o.detune.value = cents;
+    o.connect(lp); o.start(t); o.stop(t+dur+1.7);
+  });
+}
+function noteBass(ctx, bus, t, midi, dur){
+  const f = midiHz(midi);
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.linearRampToValueAtTime(0.16, t+0.06);
+  g.gain.exponentialRampToValueAtTime(0.10, t+dur);
+  g.gain.exponentialRampToValueAtTime(0.0001, t+dur+0.9);
+  g.connect(bus);
+  [['triangle', f, 1], ['sine', f*2, 0.4]].forEach(([type, fr, amp])=>{
+    const o = ctx.createOscillator(); o.type = type; o.frequency.value = fr;
+    const og = ctx.createGain(); og.gain.value = amp;
+    o.connect(og); og.connect(g);
+    o.start(t); o.stop(t+dur+1);
+  });
+}
+function noteCello(ctx, bus, t, midi, dur, vel){
+  // mostly triangle with a little saw for bow-bite, darker filter: warm, not scratchy
+  const f = midiHz(midi);
+  const lfo = ctx.createOscillator(); lfo.frequency.value = 5.2;
+  const lfoG = ctx.createGain(); lfoG.gain.setValueAtTime(0, t); lfoG.gain.linearRampToValueAtTime(7, t+0.8);
+  lfo.connect(lfoG);
+  const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = Math.min(1500, f*3.2); lp.Q.value = 0.5;
+  const g = ctx.createGain(), peak = 0.06*vel;
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.linearRampToValueAtTime(peak, t+0.3);
+  g.gain.setValueAtTime(peak, t+Math.max(0.35, dur-0.1));
+  g.gain.linearRampToValueAtTime(0.0001, t+dur+0.7);
+  lp.connect(g); g.connect(bus);
+  [['triangle', 1], ['sawtooth', 0.22]].forEach(([type, amp])=>{
+    const o = ctx.createOscillator(); o.type = type; o.frequency.value = f;
+    lfoG.connect(o.detune);
+    const og = ctx.createGain(); og.gain.value = amp;
+    o.connect(og); og.connect(lp);
+    o.start(t); o.stop(t+dur+0.8);
+  });
+  lfo.start(t); lfo.stop(t+dur+0.8);
+}
+
+function scheduleBar(G, bus, barIdx, t0){
+  const ctx = G.ctx;
+  const bar = barIdx % 16, cycle = Math.floor(barIdx/16);
+  const names = PROGRESSION[bar];
+  const segDur = BAR_DUR/names.length;
+  names.forEach((nm, si)=>{
+    const ch = CHORDS[nm], ts = t0 + si*segDur;
+    ch.pad.forEach((m, i)=> notePad(ctx, bus, ts + i*0.05, m, segDur+0.8, 0.9));
+    noteBass(ctx, bus, ts, ch.bass, segDur*0.97);
+  });
+  for(let i=0;i<8;i++){
+    const nm = names[Math.min(names.length-1, Math.floor(i/(8/names.length)))];
+    const m = CHORDS[nm].pad[ARP[i]];
+    notePiano(ctx, bus, t0 + i*EIGHTH + hum(), m, 0.9, (i%4===0 ? 0.42 : 0.30) * (cycle%2 ? 1.15 : 1), true);
+  }
+  MELODY[bar].forEach(([pos, m, d])=>{
+    const t = t0 + pos*EIGHTH + hum(), dur = d*EIGHTH;
+    notePiano(ctx, bus, t, m, dur, d>=4 ? 0.95 : 0.8);
+    if(cycle>=1) noteCello(ctx, bus, t, m-12, dur, 0.85);   // from the second round a cello joins, one octave below
+  });
+}
+
+let audioCtx = null, musicPlaying = false, musicTimer = null, musicGraph = null, musicBus = null;
+let nextBarTime = 0, barCounter = 0;
+function pumpMusic(){
+  while(nextBarTime < audioCtx.currentTime + 2.5){
+    scheduleBar(musicGraph, musicBus, barCounter, nextBarTime);
+    nextBarTime += BAR_DUR; barCounter++;
+  }
+}
+function stopMusic(){
+  clearInterval(musicTimer);
+  const bus = musicBus; musicBus = null;
+  if(bus){
+    bus.gain.setTargetAtTime(0, audioCtx.currentTime, 0.2);
+    setTimeout(()=>{ try{ bus.disconnect(); }catch(e){} }, 1800);
+  }
+}
+function toggleMusic(){
+  if(!audioCtx){
+    const AC = window.AudioContext||window.webkitAudioContext;
+    try{ audioCtx = new AC({latencyHint:'playback'}); }catch(e){ audioCtx = new AC(); }
+  }
+  if(audioCtx.state==='suspended') audioCtx.resume();
+  musicPlaying = !musicPlaying;
+  document.getElementById('musicBtn').textContent = musicPlaying ? '🎵' : '🔈';
+  if(musicPlaying){
+    if(!musicGraph || musicGraph.ctx!==audioCtx) musicGraph = buildMusicGraph(audioCtx);
+    musicBus = musicGraph.newBus();
+    barCounter = 0; nextBarTime = audioCtx.currentTime + 0.3;
+    pumpMusic();
+    musicTimer = setInterval(pumpMusic, 500);
+    toast(`🎵 «${MUSIC_TITLE}»`);
+  } else {
+    stopMusic();
+  }
+}
+
+/* refresh mine display every few seconds while on mine screen */
+setInterval(()=>{
+  if(document.getElementById('screen-mine').classList.contains('active')){
+    renderMine();
+  }
+  if(document.getElementById('screen-wheel').classList.contains('active')){
+    renderWheelScreen();
+  }
+  if(document.getElementById('screen-village').classList.contains('active')){
+    const el = document.getElementById('wheelSub');
+    if(el) el.textContent = wheelSubText();
+  }
+}, 3000);
+
+/* ---------------- Wheel of Fortune ---------------- */
+let wheelCurrentRotation = 0;
+
+function wheelReady(){
+  return Date.now() - state.wheelLastSpin >= WHEEL_COOLDOWN_MS;
+}
+function wheelRemaining(){
+  return Math.max(0, WHEEL_COOLDOWN_MS - (Date.now() - state.wheelLastSpin));
+}
+function formatDuration(ms){
+  const totalMin = Math.max(1, Math.ceil(ms/60000));
+  const h = Math.floor(totalMin/60);
+  const m = totalMin%60;
+  if(h<=0) return `${toFa(m)} دقیقه`;
+  return `${toFa(h)} ساعت و ${toFa(m)} دقیقه`;
+}
+
+function renderWheelScreen(){
+  const ready = wheelReady();
+  document.getElementById('wheelCountdown').textContent = ready
+    ? 'گردونه آماده‌ی چرخش است!'
+    : `تا چرخش بعدی: ${formatDuration(wheelRemaining())}`;
+  document.getElementById('spinBtn').disabled = !ready;
+}
+
+function spinWheel(){
+  if(!wheelUnlocked()){ toast('گردونه هنوز قفل است.'); return; }
+  if(!wheelReady()){ toast('هنوز زمان چرخش گردونه نرسیده.'); return; }
+  const idx = Math.floor(Math.random()*WHEEL_SEGMENTS.length);
+  const seg = WHEEL_SEGMENTS[idx];
+  const segAngle = 360/WHEEL_SEGMENTS.length;
+  const targetCenter = idx*segAngle + segAngle/2;
+  const currentMod = ((wheelCurrentRotation % 360)+360)%360;
+  const finalMod = (360 - targetCenter) % 360;
+  const delta = ((finalMod - currentMod)+360)%360;
+  wheelCurrentRotation += 5*360 + delta;
+
+  const disc = document.getElementById('wheelDisc');
+  disc.style.transition = 'transform 3s cubic-bezier(.17,.67,.12,.99)';
+  disc.style.transform = `rotate(${wheelCurrentRotation}deg)`;
+  document.getElementById('spinBtn').disabled = true;
+
+  setTimeout(()=>{
+    if(seg.type==='coins'){
+      addCoins(seg.amount);
+      toast(`${toFa(seg.amount)} سکه بردی! 🎉`);
+    } else if(seg.type==='diamonds'){
+      state.diamonds += seg.amount;
+      toast(`${toFa(seg.amount)} 💎 بردی! 🎉`);
+    } else {
+      toast('این‌بار چیزی نصیبت نشد. دوباره تلاش کن!');
+    }
+    state.wheelLastSpin = Date.now();
+    saveState();
+    render();
+    renderWheelScreen();
+  }, 3100);
+}
+
+function wheelUnlocked(){ return state.stageCompleted.includes(WHEEL_UNLOCK_STAGE); }
+function wheelSubText(){
+  if(!wheelUnlocked()) return `🔒 با بردن مرحله‌ی ${toFa(WHEEL_UNLOCK_STAGE)} باز می‌شود`;
+  return wheelReady()? 'آماده‌ی چرخش!' : `تا چرخش بعدی ${formatDuration(wheelRemaining())}`;
+}
+
+/* ---------------- Coin -> Diamond exchange (open 1h, closed 1h, repeating) ---------------- */
+function exchangeUnlocked(){ return state.stageCompleted.includes(EXCHANGE_UNLOCK_STAGE); }
+function exchangeStatus(){
+  if(typeof state.exchangeAnchor !== 'number') state.exchangeAnchor = Date.now();
+  const cycle = 2*EXCHANGE_PHASE_MS;
+  const elapsed = Date.now() - state.exchangeAnchor;
+  const phase = ((elapsed % cycle) + cycle) % cycle;
+  const open = phase < EXCHANGE_PHASE_MS;
+  const remaining = open ? EXCHANGE_PHASE_MS - phase : cycle - phase;
+  return {open, remaining};
+}
+function formatClock(ms){
+  const t = Math.max(0, Math.ceil(ms/1000));
+  const m = Math.floor(t/60), sec = t%60;
+  return toFa(String(m).padStart(2,'0')) + ':' + toFa(String(sec).padStart(2,'0'));
+}
+function renderExchange(){
+  const panel = document.getElementById('exchangePanel');
+  const box = document.getElementById('exchangeContainer');
+  if(!panel || !box || !state) return;
+  if(!exchangeUnlocked()){ panel.classList.add('hidden'); return; }
+  panel.classList.remove('hidden');
+  if(!box.dataset.built){
+    box.innerHTML = `<div class="market-item">
+      <div class="swatch" style="background:linear-gradient(180deg,#e6cbff,#a97be0);border-color:#7a4bb8;display:flex;align-items:center;justify-content:center;font-size:22px;">💎</div>
+      <div class="market-info">
+        <div class="mname">تبدیل سکه به الماس</div>
+        <div class="mrange">هر ۱ 💎 = ${toFa(EXCHANGE_RATE)} سکه</div>
+        <div class="mrange" id="exStatus"></div>
+      </div>
+      <button class="buy-btn" id="exBtn" onclick="exchangeDiamond()">تبدیل</button>
+    </div>`;
+    box.dataset.built = '1';
+  }
+  const st = exchangeStatus();
+  document.getElementById('exStatus').textContent = st.open
+    ? `🟢 باز است — بسته می‌شود تا ${formatClock(st.remaining)}`
+    : `🔴 بسته است — باز می‌شود تا ${formatClock(st.remaining)}`;
+  document.getElementById('exBtn').disabled = !st.open || state.coins < EXCHANGE_RATE;
+}
+function exchangeDiamond(){
+  if(!exchangeUnlocked()) return;
+  const st = exchangeStatus();
+  if(!st.open){ toast('تبادل الان بسته است.'); return; }
+  if(state.coins < EXCHANGE_RATE){ toast('سکه‌ی کافی نداری.'); return; }
+  state.coins -= EXCHANGE_RATE;
+  state.diamonds += 1;
+  saveState();
+  toast('۱ 💎 گرفتی!');
+  render();
+}
+setInterval(()=>{
+  if(state && document.getElementById('screen-market').classList.contains('active')) renderExchange();
+}, 1000);
+
+/* ---------------- Free Battle (repeatable grinding stages) ---------------- */
+function openFreeWar(){
+  if(!freeBattleUnlocked()){ toast(`نبرد آزاد با بردن مرحله‌ی ${toFa(FREE_BATTLE_UNLOCK_STAGE)} باز می‌شود.`); return; }
+  showScreen('screen-freewar','نبرد آزاد');
+  renderFreeWar();
+}
+
+function renderFreeWar(){
+  const list = document.getElementById('freeWarList');
+  if(!list) return;
+  list.innerHTML = '';
+  FREE_BATTLE_STAGES.forEach((fs, idx)=>{
+    const usesLeft = state.freeBattleUses[idx];
+    const exhausted = usesLeft<=0;
+    const row = document.createElement('div');
+    row.className = 'market-item';
+    row.style.cursor = 'pointer';
+    row.innerHTML = `
+      <div class="swatch" style="background:linear-gradient(180deg,${exhausted?'#c9c0a6,#a99a76':'#f2b0b0,#b04444'});border-color:#7a2e2e;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;font-weight:800;">${toFa(idx+1)}</div>
+      <div class="market-info">
+        <div class="mname">نبرد آزاد ${toFa(idx+1)} — قدرت دشمن ${toFa(fs.power)}</div>
+        <div class="mrange">پاداش هر برد: ${toFa(fs.reward)} سکه · بردهای باقی‌مانده: ${toFa(usesLeft)} از ${toFa(FREE_BATTLE_USES_TOTAL)}${exhausted? ' — تمام شد':''}<br>🎁 جایزه‌ی تمام کردن: ${state.freeBattleClaimed[idx] ? 'دریافت شد ✅' : '۱ 💎'}</div>
+      </div>
+      <button class="buy-btn" ${exhausted?'disabled':''} onclick="openFreeBattleModal(${idx})">${exhausted?'تمام شد':'حمله'}</button>
+    `;
+    list.appendChild(row);
+  });
+}
+
+let freeBattleSelection = [];
+function openFreeBattleModal(idx){
+  freeBattleSelection = [];
+  renderFreeBattleModal(idx);
+}
+
+function renderFreeBattleModal(idx){
+  const fs = FREE_BATTLE_STAGES[idx];
+  const usesLeft = state.freeBattleUses[idx];
+  const freeCards = state.cards.filter(c=> !state.mine.slots.includes(c.id));
+  const busyCount = state.cards.length - freeCards.length;
+  const sumPower = freeBattleSelection.reduce((s,id)=>{const c=getCard(id); return s+(c?c.power:0);},0);
+  const cardsHtml = freeCards.map(c=>{
+    const sel = freeBattleSelection.includes(c.id);
+    return `<div class="cardbox lvl${c.level}${sel?' selected':''}" style="display:inline-block;width:72px;margin:4px" onclick="toggleFreeBattleCard(${idx},${c.id})">${cardInnerHTML(c,false)}</div>`;
+  }).join('');
+  showModal(`
+    <h3>نبرد آزاد ${toFa(idx+1)}</h3>
+    <p>قدرت دشمن: ${toFa(fs.power)}<br>پاداش هر برد: ${toFa(fs.reward)} سکه<br>بردهای باقی‌مانده: <b>${toFa(usesLeft)}</b> از ${toFa(FREE_BATTLE_USES_TOTAL)}${busyCount>0?`<br><span style="color:var(--crimson)">${toFa(busyCount)} کارت در معدن مشغولند.</span>`:''}<br>
+    می‌توانی تا ${toFa(state.battleCardLimit)} کارت انتخاب کنی. مجموع قدرت انتخاب‌شده: <b>${toFa(sumPower)}</b></p>
+    <div style="text-align:center">${cardsHtml}</div>
+    <div class="modal-actions" style="margin-top:12px">
+      <button class="btn-ghost" onclick="closeModal()">بستن</button>
+      <button class="btn-danger" ${usesLeft<=0?'disabled':''} onclick="attackFreeStage(${idx})">حمله</button>
+    </div>
+  `);
+}
+
+function toggleFreeBattleCard(idx, cardId){
+  const i = freeBattleSelection.indexOf(cardId);
+  if(i>=0){
+    freeBattleSelection.splice(i,1);
+  } else {
+    if(freeBattleSelection.length >= state.battleCardLimit){
+      toast(`حداکثر ${toFa(state.battleCardLimit)} کارت می‌توانی در یک حمله استفاده کنی.`);
+      return;
+    }
+    freeBattleSelection.push(cardId);
+  }
+  renderFreeBattleModal(idx);
+}
+
+function attackFreeStage(idx){
+  const fs = FREE_BATTLE_STAGES[idx];
+  if(state.freeBattleUses[idx] <= 0){ toast('این مرحله دیگر سکه نمی‌دهد.'); closeModal(); renderFreeWar(); return; }
+  if(freeBattleSelection.length===0){ toast('حداقل یک کارت انتخاب کن.'); return; }
+  const sumPower = freeBattleSelection.reduce((s,id)=>{const c=getCard(id); return s+(c?c.power:0);},0);
+  if(sumPower >= fs.power){
+    state.freeBattleUses[idx] -= 1;
+    addCoins(fs.reward);
+    let bonus = '';
+    if(state.freeBattleUses[idx] <= 0 && !state.freeBattleClaimed[idx]){
+      state.freeBattleClaimed[idx] = true;
+      state.diamonds += 1;
+      bonus = ' · این مرحله تمام شد: +۱ 💎';
+    }
+    saveState();
+    toast(`بردی! +${toFa(fs.reward)} سکه (${toFa(state.freeBattleUses[idx])} برد باقی‌مانده)${bonus}`);
+  } else {
+    toast(`قدرت ترکیبی‌ات (${toFa(sumPower)}) در برابر دشمن (${toFa(fs.power)}) کم آورد.`);
+  }
+  freeBattleSelection = [];
+  closeModal();
+  renderFreeWar();
+  render();
+}
+
+loadState();
+</script>
+</body>
+</html>
